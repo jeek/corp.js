@@ -32,186 +32,6 @@ let HQ = "Sector-12";
 const cmdlineflags = [
     ["jakobag", false] // Use Jakob's round 1 agriculture method
 ]
-let INDUSTRIES = {
-    "Agriculture": {
-        "Type": "Simple",
-        "Needs": { "Water": .5, "Energy": .5 },
-        "Creates": { "Plants": 1, "Food": 1 }
-    },
-    "Tobacco": {
-        "Type": "Product",
-        "Needs": { "Plants": 1, "Water": .2 }
-    },
-    "Food": {
-        "Type": "Product",
-        "Needs": { "Food": .5, "Water": .5, "Energy": .2 }
-    },
-    "Chemical": {
-        "Type": "Simple",
-        "Needs": { "Plants": 1, "Energy": .5, "Water": .5 },
-        "Creates": { "Chemicals": 1 }
-    },
-    "Computer Hardware": {
-        "Type": "Hybrid",
-        "Needs": { "Metal": 2, "Energy": 1 },
-        "Creates": { "Hardware": 1 }
-    },
-    "Energy": {
-        "Type": "Simple",
-        "Needs": { "Hardware": .1, "Metal": .2 },
-        "Creates": { "Energy": 1 }
-    },
-    "Fishing": {
-        "Type": "Simple",
-        "Needs": { "Energy": .5 },
-        "Creates": { "Food": 1 }
-    },
-    "Healthcare": {
-        "Type": "Product",
-        "Needs": { "Robots": 10, "AI Cores": 5, "Energy": 5, "Water": 5 },
-    },
-    "Mining": {
-        "Type": "Simple",
-        "Needs": { "Energy": .8 },
-        "Creates": { "Metal": 1 }
-    },
-    "Pharmaceutical": {
-        "Type": "Hybrid",
-        "Needs": { "Chemicals": 2, "Energy": 1, "Water": .5 },
-        "Creates": { "Drugs": 1 }
-    },
-    "Real Estate": {
-        "Type": "Hybrid",
-        "Needs": { "Metal": 5, "Energy": 5, "Water": 2, "Hardware": 4 },
-        "Creates": { "Real Estate": 1 }
-    },
-    "Robotics": {
-        "Type": "Hybrid",
-        "Needs": { "Hardware": 5, "Energy": 3 },
-        "Creates": { "Robots": 1 }
-    },
-    "Software": {
-        "Type": "Hybrid",
-        "Needs": { "Hardware": .5, "Energy": .5 },
-        "Creates": { "AI Cores": 1 }
-    },
-    "Water Utilities": {
-        "Type": "Simple",
-        "Needs": { "Hardware": .1, "Metal": .1 },
-        "Creates": { "Water": .1 }
-    }
-}
-let CITIES = ["Sector-12", "Aevum", "Chongqing", "Ishima", "New Tokyo", "Volhaven"];
-
-let mults = [
-    [.30, .20, .72, .30], //  0 - Agriculture
-    [.20, .20, .25, .25], //  1 - Chemical
-    [.19, .00, .20, .36], //  2 - Computer Hardware
-    [.30, .00, .65, .05], //  3 - Energy
-    [.20, .35, .50, .15], //  4 - Fishing
-    [.25, .15, .05, .30], //  5 - Food
-    [.10, .10, .10, .10], //  6 - Healthcare
-    [.45, .40, .30, .45], //  7 - Mining
-    [.20, .15, .05, .25], //  8 - Pharmaceutical
-    [.60, .06, .00, .60], //  9 - Real Estate
-    [.36, .19, .32, .00], // 10 - Robotics
-    [.18, .25, .15, .05], // 11 - Software
-    [.15, .15, .15, .20], // 12 - Tobacco
-    [.50, .00, .50, .40]  // 13 - Water Utilities
-]
-
-function calc(ai = 0, hw = 0, re = 0, rob = 0, industry = 0) {
-    return (((.002 * ai + 1) ** mults[industry][0]) * ((.002 * hw + 1) ** mults[industry][1]) * ((.002 * re + 1) ** mults[industry][2]) * ((.002 * rob + 1) ** mults[industry][3])) ** .73
-}
-
-function optimizerr(industry, size) {
-    if (size == 0) {
-        return [0, 0, 0];
-    }
-    let searchmin = 0;
-    let searchmax = size;
-    let divs = (searchmax - searchmin) * .1;
-    let scores = [[calc(0, 0, 0, size / .5, industry), 0, size]];
-    while (divs > .00005 && searchmin < searchmax) {
-        let i = searchmin;
-        while (i <= searchmax + divs) {
-            if (i <= size && i >= 0) {
-                scores = scores.concat([[calc(0, 0, i / .005, (size - i) / .5, industry), i, size - i]]);
-            }
-            i += divs;
-        }
-        scores = scores.sort((a, b) => { return a[0] - b[0]; });
-        searchmin = scores[scores.length - 1][0] - divs;
-        searchmax = scores[scores.length - 1][0] + divs;
-        divs *= .1;
-    }
-    return [scores[scores.length - 1][0], scores[scores.length - 1][1], size - scores[scores.length - 1][1]];
-}
-
-function optimizeah(industry, size) {
-    if (size == 0) {
-        return [0, 0, 0];
-    }
-    let searchmin = 0;
-    let searchmax = size;
-    let divs = (searchmax - searchmin) * .1;
-    let scores = [[calc(0, size / .06, 0, 0, industry), 0, size]];
-    while (divs > .00005 && searchmin < searchmax) {
-        let i = searchmin;
-        while (i <= searchmax + divs) {
-            if (i <= size && i >= 0) {
-                scores = scores.concat([[calc(i / .1, (size - i) / .06, 0, 0, industry), i, size - i]]);
-            }
-            i += divs;
-        }
-        scores = scores.sort((a, b) => { return a[0] - b[0]; });
-        searchmin = scores[scores.length - 1][0] - divs;
-        searchmax = scores[scores.length - 1][0] + divs;
-        divs *= .1;
-    }
-    return [scores[scores.length - 1][0], scores[scores.length - 1][1], size - scores[scores.length - 1][1]];
-}
-
-export function optimize(industry, size) {
-    if (size == 0) {
-        return [0, 0, 0, 0, 0];
-    }
-    let searchmin = 0;
-    let searchmax = size;
-    let divs = (searchmax - searchmin) * .1;
-    let scores = [[0, 0, 0, 0, 0, 0, 0, 0]];
-    while (divs > .00005 && searchmin < searchmax) {
-        let i = searchmin;
-        while (divs > .00005 && i <= searchmax + divs) {
-            if (i <= size && i >= 0) {
-                let rr = optimizerr(industry, i);
-                let ah = optimizeah(industry, size - i);
-                scores = scores.concat([[ah[0] * rr[0], i, size - i, ah[1] / .1, ah[2] / .06, rr[1] / .005, rr[2] / .5]]);
-            }
-            i += divs;
-        }
-        scores.sort((a, b) => { return a[0] - b[0]; });
-        searchmin = scores[scores.length - 1][1] - divs;
-        searchmax = scores[scores.length - 1][1] + divs;
-        divs *= .1;
-    }
-    let finalcheck = [[Math.floor(scores[scores.length - 1][3]), Math.floor(scores[scores.length - 1][4]), Math.floor(scores[scores.length - 1][5]), Math.floor(scores[scores.length - 1][6])]];
-    for (let ai = finalcheck[0][0]; ai <= finalcheck[0][0] + 20; ai++) {
-        for (let hw = finalcheck[0][1]; hw <= finalcheck[0][1] + 32; hw++) {
-            for (let re = finalcheck[0][2]; re <= finalcheck[0][2] + 100; re++) {
-                for (let rob = finalcheck[0][3]; rob <= finalcheck[0][3] + 4; rob++) {
-                    if (ai * .1 + hw * .06 + re * .005 + rob * .5 <= size) {
-                        finalcheck.push([ai, hw, re, rob]);
-                    }
-                }
-            }
-        }
-    }
-    finalcheck = finalcheck.filter(x => x[0] * .1 + x[1] * .06 + x[2] * .005 + x[3] * .5 <= size);
-    finalcheck = finalcheck.sort((a, b) => calc(a[0], a[1], a[2], a[3], industry) - calc(b[0], b[1], b[2], b[3], industry));
-    finalcheck[finalcheck.length - 1].push(6 * calc(finalcheck[finalcheck.length - 1][0], finalcheck[finalcheck.length - 1][1], finalcheck[finalcheck.length - 1][2], finalcheck[finalcheck.length - 1][3], industry));
-    return finalcheck[finalcheck.length - 1];
-}
 
 class City {
     constructor(ns, Corp, Division, CityName) {
@@ -221,6 +41,7 @@ class City {
         this.Corp = Corp;
         this.Division = Division;
         this.pricing = {};
+        this.mults = ["aiCoreFactor","hardwareFactor","realEstateFactor","robotFactor"].map(factor => Object.keys(this.c.getIndustryData(this.Division.industry)).includes(factor) ? this.c.getIndustryData(this.Division.industry)['factor'] : 0)
     }
     get funds() {
         return this.c.getCorporation().funds;
@@ -240,8 +61,100 @@ class City {
     get warehouseSize() {
         return this.getWarehouse.size;
     }
-    async Start() {
-        while (!this.c.getDivision(this.Division.name).cities.includes(this.name)) {
+    get round() {
+        if (this.c.getCorporation().public)
+            return 5;
+        return this.c.getInvestmentOffer().round;
+    }
+    calc(ai = 0, hw = 0, re = 0, rob = 0) {
+        return (((.002 * ai + 1) ** this.mults[0]) * ((.002 * hw + 1) ** this.mults[1]) * ((.002 * re + 1) ** this.mults[2]) * ((.002 * rob + 1) ** this.mults[3])) ** .73
+    }
+    optimizerr(size) {
+        if (size == 0) {
+            return [0, 0, 0];
+        }
+        let searchmin = 0;
+        let searchmax = size;
+        let divs = (searchmax - searchmin) * .1;
+        let scores = [[this.calc(0, 0, 0, size / .5), 0, size]];
+        while (divs > .00005 && searchmin < searchmax) {
+            let i = searchmin;
+            while (i <= searchmax + divs) {
+                if (i <= size && i >= 0) {
+                    scores = scores.concat([[this.calc(0, 0, i / .005, (size - i) / .5), i, size - i]]);
+                }
+                i += divs;
+            }
+            scores = scores.sort((a, b) => { return a[0] - b[0]; });
+            searchmin = scores[scores.length - 1][0] - divs;
+            searchmax = scores[scores.length - 1][0] + divs;
+            divs *= .1;
+        }
+        return [scores[scores.length - 1][0], scores[scores.length - 1][1], size - scores[scores.length - 1][1]];
+    }
+    optimizeah(size) {
+        if (size == 0) {
+            return [0, 0, 0];
+        }
+        let searchmin = 0;
+        let searchmax = size;
+        let divs = (searchmax - searchmin) * .1;
+        let scores = [[this.calc(0, size / .06, 0, 0), 0, size]];
+        while (divs > .00005 && searchmin < searchmax) {
+            let i = searchmin;
+            while (i <= searchmax + divs) {
+                if (i <= size && i >= 0) {
+                    scores = scores.concat([[this.calc(i / .1, (size - i) / .06, 0, 0), i, size - i]]);
+                }
+                i += divs;
+            }
+            scores = scores.sort((a, b) => { return a[0] - b[0]; });
+            searchmin = scores[scores.length - 1][0] - divs;
+            searchmax = scores[scores.length - 1][0] + divs;
+            divs *= .1;
+        }
+        return [scores[scores.length - 1][0], scores[scores.length - 1][1], size - scores[scores.length - 1][1]];
+    }
+        optimize(size) {
+        if (size == 0) {
+            return [0, 0, 0, 0, 0];
+        }
+        let searchmin = 0;
+        let searchmax = size;
+        let divs = (searchmax - searchmin) * .1;
+        let scores = [[0, 0, 0, 0, 0, 0, 0, 0]];
+        while (divs > .00005 && searchmin < searchmax) {
+            let i = searchmin;
+            while (divs > .00005 && i <= searchmax + divs) {
+                if (i <= size && i >= 0) {
+                    let rr = this.optimizerr(i);
+                    let ah = this.optimizeah(size - i);
+                    scores = scores.concat([[ah[0] * rr[0], i, size - i, ah[1] / .1, ah[2] / .06, rr[1] / .005, rr[2] / .5]]);
+                }
+                i += divs;
+            }
+            scores.sort((a, b) => { return a[0] - b[0]; });
+            searchmin = scores[scores.length - 1][1] - divs;
+            searchmax = scores[scores.length - 1][1] + divs;
+            divs *= .1;
+        }
+        let finalcheck = [[Math.floor(scores[scores.length - 1][3]), Math.floor(scores[scores.length - 1][4]), Math.floor(scores[scores.length - 1][5]), Math.floor(scores[scores.length - 1][6])]];
+        for (let ai = finalcheck[0][0]; ai <= finalcheck[0][0] + 20 && ai*.1<=size; ai++) {
+            for (let hw = finalcheck[0][1]; hw <= finalcheck[0][1] + 32 && ai*.1+hw*.06<=size; hw++) {
+                for (let re = finalcheck[0][2]; re <= finalcheck[0][2] + 100 && ai*.1+hw*.06+re*.005<=size; re++) {
+                    for (let rob = finalcheck[0][3]; rob <= finalcheck[0][3] + 4 && ai*.1+hw*.06+re*.005+rob*.5<=size; rob++) {
+                            finalcheck.push([ai, hw, re, rob]);
+                    }
+                }
+            }
+        }
+        finalcheck = finalcheck.filter(x => x[0] * .1 + x[1] * .06 + x[2] * .005 + x[3] * .5 <= size);
+        finalcheck = finalcheck.sort((a, b) => this.calc(a[0], a[1], a[2], a[3]) - this.calc(b[0], b[1], b[2], b[3]));
+        finalcheck[finalcheck.length - 1].push(6 * this.calc(finalcheck[finalcheck.length - 1][0], finalcheck[finalcheck.length - 1][1], finalcheck[finalcheck.length - 1][2], finalcheck[finalcheck.length - 1][3]));
+        return finalcheck[finalcheck.length - 1];
+    }
+        async Start() {
+        while (!this.Division.getDivision.cities.includes(this.name)) {
             await this.ns.asleep(100);
             try {
                 this.c.expandCity(this.Division.name, this.name);
@@ -260,14 +173,14 @@ class City {
             mysize = 0;
         let mymats = [0, 0, 0, 0, 0];
         for (let twice of [0, 1]) {
-            while (this.c.getCorporation().state != "START") {
-                await this.ns.asleep(0);
+            mymats = this.optimize(mysize * [.50, .70, .55, .57, .57, .57][this.round]);
+            while (this.c.getCorporation().state != "EXPORT") {
+                await this.ns.asleep(400);
             }
-            mymats = optimize(["Agriculture", "Chemical", "Computer Hardware", "Energy", "Fishing", "Food", "Healthcare", "Mining", "Pharmaceutical", "Real Estate", "Robotics", "Software", "Tobacco", "Water Utilities"].indexOf(this.Division.industry), mysize * [.50, .50, .55, .57, .57, .57][this.round]);
             let didSomething = false;
             for (let material of ["AI Cores", "Hardware", "Real Estate", "Robots"]) {
                 let matIndex = ["AI Cores", "Hardware", "Real Estate", "Robots"].indexOf(material);
-                if (!Object.keys(INDUSTRIES[this.Division.industry]).includes("Creates") || !Object.keys(INDUSTRIES[this.Division.industry].Creates).includes(material)) {
+                if (!Object.keys(this.industryData).includes("producedMaterials") || !Object.keys(this.industryData.producedMaterials).includes(material)) {
                     if (this.c.getMaterial(this.Division.name, this.name, material).qty >= mymats[matIndex]) {
                         this.c.buyMaterial(this.Division.name, this.name, material, 0);
                         this.c.sellMaterial(this.Division.name, this.name, material, (this.c.getMaterial(this.Division.name, this.name, material).qty - mymats[matIndex]) / 10, 0);
@@ -281,10 +194,15 @@ class City {
                 }
             }
             if (!didSomething) {
+                for (let material of ["AI Cores", "Hardware", "Real Estate", "Robots"]) {
+                    let matIndex = ["AI Cores", "Hardware", "Real Estate", "Robots"].indexOf(material);
+                    this.c.buyMaterial(this.Division.name, this.name, material, 0);
+                    this.c.sellMaterial(this.Division.name, this.name, material, 0, 0);
+                }
                 return;
             }
-            while (this.c.getCorporation().state == "START") {
-                await this.ns.asleep(0);
+            while (this.c.getCorporation().state == "EXPORT") {
+                await this.ns.asleep(400);
             }
         }
     }
@@ -313,24 +231,24 @@ class City {
         let business = Object.keys(roles).includes("Business") ? roles["Business"] : 0;
         let total = Object.values(roles).reduce((a, b) => a + b, 0);
         await this.getOfficeAPI();
-        while (this.getOffice().size < total) {
+        while (this.getOffice.size < total) {
             if (this.c.getOfficeSizeUpgradeCost(this.Division.name, this.name, 3) <= this.funds) {
                 this.c.upgradeOfficeSize(this.Division.name, this.name, 3);
             } else {
-                await this.ns.asleep(0);
+                await this.WaitOneLoop();
             }
             for (let job of ["Operations", "Engineer", "Management", "Business", "Research & Development"]) {
-                while (this.getOffice().employees < this.getOffice().size && (this.getOffice().employeeJobs[job] < roles[job])) {
+                while (this.getOffice.employees < this.getOffice.size && (this.getOffice.employeeJobs[job] < roles[job])) {
                     this.c.hireEmployee(this.Division.name, this.name, job);
                 }
             }
         }
-        while (this.c.getOffice(this.Division.name, this.name).employees < this.c.getOffice(this.Division.name, this.name).size) {
+        while (this.getOffice.employees < this.getOffice.size) {
             this.c.hireEmployee(this.Division.name, this.name, "Unassigned");
         }
         let good = true;
         for (let job of Object.keys(roles)) {
-            if (this.getOffice().employeeJobs[job] < roles[job]) {
+            if (this.getOffice.employeeJobs[job] < roles[job]) {
                 try {
                     if (this.c.setAutoJobAssignment(this.Division.name, this.name, job, roles[job])) {
                     } else {
@@ -348,7 +266,7 @@ class City {
             }
             await this.WaitOneLoop();
             for (let job of Object.keys(roles)) {
-                if (this.getOffice().employeeJobs[job] < roles[job]) {
+                if (this.getOffice.employeeJobs[job] < roles[job]) {
                     try {
                         if (this.c.setAutoJobAssignment(this.Division.name, this.name, job, roles[job])) {
                         } else {
@@ -389,13 +307,13 @@ class City {
     async getHappy() {
         while (true) {
             let happy = true;
-            if (this.getOffice().avgEne < minEnergy) {
+            if (this.getOffice.avgEne < minEnergy) {
                 happy = false;
             }
-            if (this.getOffice().avgHap < minHappy) {
+            if (this.getOffice.avgHap < minHappy) {
                 happy = false;
             }
-            if (this.getOffice().avgMor < minMorale) {
+            if (this.getOffice.avgMor < minMorale) {
                 happy = false;
             }
             if (happy) {
@@ -407,7 +325,9 @@ class City {
     async enableSmartSupply() {
         while (!this.c.hasUnlockUpgrade("Smart Supply")) {
             await this.ns.asleep(100);
-            this.c.unlockUpgrade("Smart Supply");
+            try {
+                this.c.unlockUpgrade("Smart Supply");
+            } catch { }
         }
         // Enable Smart Supply
         this.c.setSmartSupply(this.Division.name, this.name, true);
@@ -418,8 +338,8 @@ class City {
     async Pricing() {
         let phased = 0;
         while (true) {
-            while (this.c.getCorporation().state != "START") {
-                await this.ns.asleep(0);
+            while (this.c.getCorporation().state != "SALE") {
+                await this.ns.asleep(400);
             }
             for (let product of this.Division.getDivision.products) {
                 if (!this.c.hasResearched(this.Division.name, "Market-TA.II")) {
@@ -427,19 +347,23 @@ class City {
                         if (!(Object.keys(this.pricing).includes(product))) {
                             this.pricing[product] = {
                                 'x_min': 1,
-                                'x_max': 1024,
+                                'x_max': 1,
                                 'phase': 1
                             }
                         } else {
-                            if (this.pricing[product].phase == 1) {
+                            if (this.pricing[product].phase == 3) {
                                 if (this.c.getProduct(this.Division.name, product).cityData[HQ][1] <= this.c.getProduct(this.Division.name, product).cityData[HQ][2]) {
-                                    this.pricing[type][product].x_max *= 2;
+                                    this.pricing[product].x_min = this.pricing[product].x_min + 1 >= 1 ? this.pricing[product].x_min + 1 : 1;
+                                    this.pricing[product].x_max = this.pricing[product].x_min;
                                 }
                                 if (this.c.getProduct(this.Division.name, product).cityData[HQ][1] > this.c.getProduct(this.Division.name, product).cityData[HQ][2]) {
-                                    this.pricing[type][product].phase = 2;
+                                    this.pricing[product].x_min = this.pricing[product].x_min - 1 >= 1 ? this.pricing[product].x_min - 1 : 1;
+                                    this.pricing[product].x_max = this.pricing[product].x_min;
                                 }
                                 if (this.c.getProduct(this.Division.name, product).cityData[HQ][2] <= .001) {
-                                    this.pricing[type][product].phase = 2;
+                                    this.pricing[product].x_min /= 2;
+                                    this.pricing[product].x_max *= 1.5;
+                                    this.pricing[product].phase = 2;
                                 }
                             }
                             if (this.pricing[product].phase == 2) {
@@ -452,30 +376,32 @@ class City {
                                 if (this.pricing[product].x_max - this.pricing[product].x_min < .5) {
                                     this.pricing[product].phase = 3;
                                 }
-                            }
-                            if (this.pricing[product].phase == 3) {
-                                if (this.c.getProduct(this.Division.name, product).cityData[HQ][1] <= this.c.getProduct(this.Division.name, product).cityData[HQ][2]) {
-                                    this.pricing[product].x_min = this.pricing[product].x_min + 1 >= 1 ? this.pricing[product].x_min + 1 : 1;
-                                    this.pricing[product].x_max = this.pricing[product].x_min;
-                                }
-                                if (this.c.getProduct(this.Division.name, product).cityData[HQ][1] > this.c.getProduct(this.Division.name, product).cityData[HQ][2]) {
-                                    this.pricing[product].x_min = this.pricing[product].x_min - 1 >= 1 ? this.pricing[product].x_min - 1 : 1;
-                                    this.pricing[product].x_max = this.pricing[product].x_min;
-                                }
-                                if (this.c.getProduct(this.getDivName(type), product).cityData[HQ][2] == 0) {
+                                if (this.c.getProduct(this.Division.name, product).cityData[HQ][2] <= .001) {
                                     this.pricing[product].x_min /= 2;
                                     this.pricing[product].x_max *= 1.5;
                                     this.pricing[product].phase = 2;
                                 }
                             }
-                            try {
+                            if (this.pricing[product].phase == 1) {
+                                if (this.c.getProduct(this.Division.name, product).cityData[HQ][1] <= this.c.getProduct(this.Division.name, product).cityData[HQ][2]) {
+                                    this.pricing[product].x_max *= 2;
+                                }
+                                if (this.c.getProduct(this.Division.name, product).cityData[HQ][1] > this.c.getProduct(this.Division.name, product).cityData[HQ][2]) {
+                                    this.pricing[product].phase = 2;
+                                }
+                                if (this.c.getProduct(this.Division.name, product).cityData[HQ][2] <= .001) {
+                                    this.pricing[product].phase = 2;
+                                }
+                            }
+// try {
                                 this.c.sellProduct(this.Division.name, this.name, product, "MAX", (Math.floor((this.pricing[product].x_max + this.pricing[product].x_min) / 2)).toString() + "*MP", false);
-                            } catch { }
+//                            } catch { }
                         }
                     }
                 } else {
                     if (phased == 0) {
                         phased = 1;
+                        this.c.sellProduct(this.Division.name, this.name, product, "MAX", "MP", false);
                         this.c.setProductMarketTA1(this.Division.name, product, true);
                         this.c.setProductMarketTA2(this.Division.name, product, false);
                     } else {
@@ -487,8 +413,8 @@ class City {
                     }
                 }
             }
-            while (this.c.getCorporation().state == "START") {
-                await this.ns.asleep(0);
+            while (this.c.getCorporation().state == "SALE") {
+                await this.ns.asleep(400);
             }
         }
     }
@@ -535,9 +461,9 @@ class City {
                 }
             }
             let targetsize = this.c.getWarehouse(this.Division.name, this.name).size - (sizes[0] > sizes[1] ? sizes[0] : sizes[1]) * 1.1 - sizes[2];
-            let sizecheck = optimize(["Agriculture", "Chemical", "Computer Hardware", "Energy", "Fishing", "Food", "Healthcare", "Mining", "Pharmaceutical", "Real Estate", "Robotics", "Software", "Tobacco", "Water Utilities"].indexOf(this.Division.industry), targetsize / [.50, .50, .55, .57, .57, .57][this.round]);
+            let sizecheck = this.optimize(targetsize / [.50, .70, .55, .57, .57, .57][this.round]);
             if (sizecheck[0] > this.c.getMaterial(this.Division.name, this.name, "AI Cores").qty) {
-                this.warehouseFF(targetsize);
+                await this.warehouseFF(targetsize);
             } else {
                 if (this.funds > this.c.getUpgradeWarehouseCost(this.Division.name, this.name)) {
                     this.c.upgradeWarehouse(this.Division.name, this.name);
@@ -545,16 +471,12 @@ class City {
             }
             while (this.c.getCorporation().state == "SALE")
                 await this.ns.asleep(1000);
-            while (this.c.getCorporation().state != "SALE")
-                await this.ns.asleep(100);
-            while (this.c.getCorporation().state == "SALE")
-                await this.ns.asleep(1000);
         }
     }
     async coffeeparty() {
         while (true) {
             while (this.c.getCorporation().state != "START") {
-                await this.ns.asleep(0);
+                await this.ns.asleep(400);
             }
             if (this.getOffice.employees > 0) {
                 if (this.getOffice.avgEne < minEnergy) {
@@ -570,7 +492,7 @@ class City {
                 }
             }
             while (this.c.getCorporation().state == "START") {
-                await this.ns.asleep(0);
+                await this.ns.asleep(400);
             }
         }
     }
@@ -635,11 +557,14 @@ class Division {
     get name() {
         return this.c.getCorporation().divisions.map(div => [div, this.c.getDivision(div).type]).filter(x => x[1] == this.industry)[0][0];
     }
+    get funds() {
+        return this.c.getCorporation().funds;
+    }
     get Cities() {
         return Object.values(this.ns.enums.CityName);
     }
     get cities() {
-        return this.citiesObj.values();
+        return Object.values(this.citiesObj);
     }
     get round() {
         if (this.c.getCorporation().public)
@@ -667,19 +592,24 @@ class Division {
     get Volhaven() {
         return this.citiesObj['Volhaven'];
     }
+    get round() {
+        if (this.c.getCorporation().public)
+            return 5;
+        return this.c.getInvestmentOffer().round;
+    }
     async Start() {
         while (this.c.getCorporation().divisions.map(div => [div, this.c.getDivision(div).type]).filter(x => x[1] == this.industry).length == 0) {
-            try {
-                this.c.expandIndustry(this.industry, settings.includes("name") ? settings["name"] : divisionNames.includes(industry) ? divisionNames[industry] : industry);
-            } catch {
-                for (let i = 0; i < 6; i++)
-                    await this.WaitOneLoop();
-            }
+            //            try {
+            this.c.expandIndustry(this.industry, Object.keys(this.settings).includes("name") ? this.settings["name"] : Object.keys(divisionNames).includes(this.industry) ? divisionNames[this.industry] : this.industry);
+            //            } catch {
+            //               for (let i = 0; i < 6; i++)
+            await this.WaitOneLoop();
+            //         }
         }
         this.Cities.map(city => this.citiesObj[city] = new City(this.ns, this.Corp, this, city));
         await Promise.all(this.cities.map(city => city.Start()));
         this.HQ = this.citiesObj[HQ];
-        switch (this.Division.industry) {
+        switch (this.industry) {
             case 'Agriculture':
             case 'Chemical':
             case 'Energy':
@@ -704,18 +634,18 @@ class Division {
     }
     async Advert(toLevel = 1) {
         while (this.c.getHireAdVertCount(this.name) < toLevel) {
-            if (this.c.getDivision(this.name).awareness + this.c.getDivision(this.name).popularity > 1e300)
-                return
+            if (this.getDivision.awareness + this.getDivision.popularity > 1e300)
+                return;
             if (this.funds >= this.c.getHireAdVertCost(this.name)) {
                 this.c.hireAdVert(this.name);
             } else {
-                await this.ns.asleep(0);
+                await this.WaitOneLoop();
             }
         }
     }
     async getHappy() {
         while (!this.c.getCorporation().divisions.map(x => this.c.getDivision(x).type).includes(this.industry)) {
-            await this.ns.asleep(0);
+            await this.WaitOneLoop();
         }
         let promises = this.cities.map(city => city.getHappy());
         await Promise.all(promises);
@@ -724,7 +654,7 @@ class Division {
         var cmdlineargs = this.ns.flags(cmdlineflags);
         while (!(this.c.getCorporation().divisions.map(x => this.c.getDivision(x)).map(x => x.type).includes(this.industry))) {
             try {
-                await this.ns.asleep(0);
+                await this.WaitOneLoop();
             } catch {
                 for (let i = 0; i < 6; i++)
                     await this.WaitOneLoop();
@@ -744,25 +674,28 @@ class Division {
         // Upgrade Each City's Storage to 300
         this.cities.map(city => promises.push(city.upgradeWarehouseSize(cmdlineargs['jakobag'] ? 650 : 300)));
         // Set produced materials to be sold
-        this.industryData.producedMaterials.map(material => cities.map(city => city.sellMaterial(material)));
+        this.industryData.producedMaterials.map(material => this.cities.map(city => city.sellMaterial(material)));
         if (!cmdlineargs['jakobag']) {
             for (let upgrade of ["FocusWires", "Neural Accelerators", "Speech Processor Implants", "Nuoptimal Nootropic Injector Implants", "Smart Factories"]) {
                 promises.push(this.GetUpgrade(upgrade, 2));
             }
         }
-        await this.getHappy();
-        await Promise.all(promises); promises = [];
-        await this.getHappy();
-        // Adjust Warehouses
-        if (this.round == 1)
-            await Promise.all(this.cities.map(city => city.warehouseFF()));
-        while (this.round <= 1) {
-            await this.ns.asleep(1000);
+        if (this.round <= 1) {
+            await this.getHappy();
         }
         await Promise.all(promises); promises = [];
+        if (this.round <= 1) {
+            await this.getHappy();
+        }
+        // Adjust Warehouses
+//        if (this.round == 1 || round == 3)
+        await Promise.all(this.cities.map(city => city.warehouseFF()));
+        while (this.round <= 1) {
+            await this.WaitOneLoop();
+        }
         // Get Employees
         let redo = false;
-        if (this.getDivision.research < 2) {
+        if (this.getDivision.research < 2 || this.cities.map(city => city.getOffice.size).reduce((a, b) => a > b ? b : a) < 9) {
             redo = true;
             this.cities.map(city => promises.push(city.Hire({ "Operations": 1, "Engineer": 1, "Business": 1, "Management": 1, "Research & Development": 5 })))
         }
@@ -770,25 +703,27 @@ class Division {
         await this.Corp.GetUpgrade("Smart Factories", 10);
         await this.Corp.GetUpgrade("Smart Storage", 10);
         for (let i = 100; i <= 2000; i += 100) {
-            await Promise.all(cities.map(city => city.upgradeWareHouseSize(i)));
+            await Promise.all(this.cities.map(city => city.upgradeWarehouseSize(i)));
         }
         if (redo) {
             while (this.getDivision.research < 2) {
-                await this.ns.asleep(0);
+                await this.WaitOneLoop();
             }
         }
         await Promise.all(promises); promises = [];
         if (this.round >= 2) {
             this.cities.map(city => promises.push(city.Hire({ "Operations": 3, "Engineer": 2, "Business": 2, "Management": 2, "Research & Development": 0 })))
         }
-        await this.getHappy();
-        await Promise.all(promises); promises = [];
-        await this.getHappy();
+        if (this.round <= 2) {
+            await this.getHappy();
+            await Promise.all(promises); promises = [];
+            await this.getHappy();
+        }
         // Adjust Warehouses
         if (this.round == 2)
             await Promise.all(this.cities.map(city => city.warehouseFF()));
         while (this.round <= 2) {
-            await this.ns.asleep(1000);
+            await this.WaitOneLoop();
         }
         // Upgrade Each City's Storage to 3800
         for (let i = 100; i <= 3800; i += 100) {
@@ -807,7 +742,7 @@ class Division {
         // Get Employees
         this.cities.map(city => promises.push(city.Hire(city.name == HQ ? { "Operations": 8, "Engineer": 9, "Business": 5, "Management": 8 } : { "Operations": 1, "Engineer": 1, "Business": 1, "Management": 1, "Research & Development": 5 })));
         // Buy 1 advert
-        promises.push(this.Advert(type, cmdlineargs['jakobag'] ? 2 : 1));
+        promises.push(this.Advert(cmdlineargs['jakobag'] ? 2 : 1));
         await Promise.all(promises);
         promises = [];
         this.Products();
@@ -821,7 +756,7 @@ class Division {
             promises.push(this.Corp.GetUpgrade(upgrade, 10));
         }
         while (this.getDivision.products.length == 0) {
-            await this.ns.asleep(0);
+            await this.WaitOneLoop();
         }
         this.MaintainWarehouse();
         while (true) {
@@ -836,12 +771,12 @@ class Division {
                 }
                 else {
                     if (this.c.getUpgradeLevel("Wilson Analytics") >= 10 && this.c.getHireAdVertCost(this.name) <= this.funds && this.getDivision.awareness + this.getDivision.popularity < 1e300) {
-                        this.c.hireAdVert(this.getDivName(type));
+                        this.c.hireAdVert(this.name);
                     } else {
                         let didSomething = this.cities.map(city => city.officeSize + 60 < this.HQ.officeSize);
-                        for (let city of CITIES) {
+                        for (let city of this.getDivision.cities) {
                             if (this.c.getOffice(this.name, city).size + 60 < this.HQ.size) {
-                                if (this.c.getOfficeSizeUpgradeCost(this.getDivName(type), city, 3) <= this.funds) {
+                                if (this.c.getOfficeSizeUpgradeCost(this.name, city, 3) <= this.funds) {
                                     await this[city].Hire({ "Operations": 1, "Engineer": 1, "Business": 1, "Management": 1, "Research & Development": this.c.getOffice(this.name, city).size - 1 });
                                     didSomething = true;
                                 }
@@ -853,6 +788,7 @@ class Division {
                                     this.c.levelUpgrade(upgrade);
                                 }
                             }
+                            await this.WaitOneLoop();
                         }
                     }
                 }
@@ -882,21 +818,21 @@ class Division {
                     } catch { }
                 }
             }
-            await this.ns.asleep(60000);
+            await this.WaitOneLoop();
         }
     }
     async Products() {
         let currentProducts = this.getDivision.products;
         if (currentProducts.length == 0) {
             while (this.funds < 2e9) {
-                await this.ns.asleep(0);
+                await this.WaitOneLoop();
             }
             this.c.makeProduct(this.name, HQ, productNames[this.industry][0], 1e9, 1e9);
             this.lastProductPrice = 2e9;
         }
         while (true) {
-            while (this.c.getProduct(this.name, this.c.getDivision.products[this.getDivision.products.length - 1]).developmentProgress < 100) {
-                await this.ns.asleep(0);
+            while (this.c.getProduct(this.name, this.getDivision.products[this.getDivision.products.length - 1]).developmentProgress < 100) {
+                await this.WaitOneLoop();
             }
             if (this.getDivision.products.length == 3 + this.c.hasResearched(this.name, "uPgrade: Capacity.I") + this.c.hasResearched(this.name, "uPgrade: Capacity.II")) {
                 let qlts = [];
@@ -905,13 +841,13 @@ class Division {
                 }
                 qlts = qlts.sort((a, b) => -a[0] + b[0]);
                 while (this.funds < this.lastProduct[type]) {
-                    await this.ns.asleep(0);
+                    await this.WaitOneLoop();
                 }
                 delete this.pricing[qlts[0][1]];
                 this.c.discontinueProduct(this.name, qlts[0][1]);
             }
             while (this.funds < this.lastProduct) {
-                await this.ns.asleep(0);
+                await this.WaitOneLoop();
             }
             this.lastProduct = this.funds * 1.1;
             let done = false;
@@ -920,10 +856,10 @@ class Division {
                     this.c.makeProduct(this.name, HQ, productNames[this.industry].filter(x => !this.getDivision.products.includes(x))[0], Math.floor(this.funds / 2.1), Math.floor(this.funds / 2.1));
                     done = true;
                 } catch {
-                    await this.ns.asleep(0);
+                    await this.WaitOneLoop();
                 }
             }
-            await this.ns.asleep(0);
+            await this.WaitOneLoop();
         }
     }
     async MaintainWarehouse() {
@@ -994,44 +930,50 @@ export class Corporation {
     }
     async Start() {
         while ([undefined, false].includes(this.c.hasCorporation())) {
-            await this.ns.asleep(0);
             try {
                 this.c.createCorporation(settings.includes("name") ? settings.name : "jeekCo", this.ns.getPlayer().bitNodeN == 3 ? false : true);
+                await this.ns.asleep(0);
             } catch {
                 await this.ns.asleep(60000);
             }
         }
-        await this.ns.asleep(0);
+        await this.ns.asleep(1);
         this.divisionsObj = {};
-        this.c.getCorporation().divisions.map(divname => Object({ "name": divname, "type": this.c.getDivision(divname).type })).map(x => this.divisionsObj[x.type] = new Division(this.ns, this, this.type, x.name))
-        Object.values(this.divisions).map(x => x.Start());
+        this.c.getCorporation().divisions.map(divname => Object({ "name": divname, "type": this.c.getDivision(divname).type })).map(x => this.divisionsObj[x.type] = new Division(this.ns, this, x.type, x.name))
+        Object.values(this.divisionsObj).map(x => x.Start());
         this.started = true;
         this.ns.toast("Corporation started.");
-        Continue();
+        this.Continue();
     }
     async Continue() {
-        for (let i = 1; i <= 4; i++)
-            while (this.round == i && this.c.getInvestmentOffer().funds < (this.settings.includes("baseOffers") ? this.settings['baseOffers'][i - 1] : baseOffers[i - 1]) * this.ns.getBitNodeMultipliers().CorporationValuation)
-                await WaitOneLoop();
+        for (let i = 1; i <= 4; i++) {
+            while (this.round == i && this.c.getInvestmentOffer().funds < (Object.keys(this.settings).includes("baseOffers") ? this.settings['baseOffers'][i - 1] : baseOffers[i - 1]) * this.ns.getBitNodeMultipliers().CorporationValuation) {
+                await this.WaitOneLoop();
+            }
+            if (this.round == i) {
+                this.c.acceptInvestmentOffer();
+            }
+        }
         if (!this.c.getCorporation().public)
             this.c.goPublic(0);
         this.c.issueDividends(1);
         while (this.funds < 1e21)
-            await WaitOneLoop();
+            await this.WaitOneLoop();
         this.c.getConstants().unlockNames.map(unlock => this.c.hasUnlockUpgrade(unlock) ? true : this.c.unlockUpgrade(unlock));
     }
-    async startDivision(industry, settings = {}) {
-        if (!this.divisionsObj.includes(industry)) {
+    async StartDivision(industry, settings = {}) {
+        if (!Object.keys(this.divisionsObj).includes(industry)) {
             this.divisionsObj[industry] = new Division(this.ns, this, industry, settings);
             this.divisionsObj[industry].Start();
         }
     }
     async GetUpgrade(upgrade, level = 1) {
         while (this.c.getUpgradeLevel(upgrade) < level) {
-            if (this.c.getUpgradeLevelCost(upgrade) <= this.funds) {
+            while (this.c.getUpgradeLevel(upgrade) < level && this.c.getUpgradeLevelCost(upgrade) <= this.funds) {
                 this.c.levelUpgrade(upgrade);
-            } else {
-                await this.ns.asleep(0);
+            }
+            if (this.c.getUpgradeLevel(upgrade) < level) {
+                await this.WaitOneLoop();
             }
         }
     }
