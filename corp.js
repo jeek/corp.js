@@ -250,28 +250,6 @@ class City {
         await this.getWarehouseAPI();
         await this.getOfficeAPI();
         await this.Hire({ "Operations": 1, "Engineer": 1, "Business": 1 })
-        switch (this.Division.industry) {
-            case 'Agriculture':
-            case 'Chemical':
-            case 'Energy':
-            case 'Fishing':
-            case 'Mining':
-            case 'Water Utilities':
-                this.Simple();
-                break;
-            case 'Food':
-            case 'Healthcare':
-            case 'Tobacco':
-                this.Product();
-                break;
-            case 'Computer Hardware':
-            case 'Pharmaceutical':
-            case 'Real Estate':
-            case 'Robotics':
-            case 'Software':
-                this.Simple().then(this.Product());
-                break;
-        }
         this.coffeeparty();
     }
     async warehouseFF(mysize = -1) {
@@ -701,6 +679,28 @@ class Division {
         this.Cities.map(city => this.citiesObj[city] = new City(this.ns, this.Corp, this, city));
         await Promise.all(this.cities.map(city => city.Start()));
         this.HQ = this.citiesObj[HQ];
+        switch (this.Division.industry) {
+            case 'Agriculture':
+            case 'Chemical':
+            case 'Energy':
+            case 'Fishing':
+            case 'Mining':
+            case 'Water Utilities':
+                this.Simple();
+                break;
+            case 'Food':
+            case 'Healthcare':
+            case 'Tobacco':
+                this.Product();
+                break;
+            case 'Computer Hardware':
+            case 'Pharmaceutical':
+            case 'Real Estate':
+            case 'Robotics':
+            case 'Software':
+                this.Simple().then(this.Product());
+                break;
+        }
     }
     async Advert(toLevel = 1) {
         while (this.c.getHireAdVertCount(this.name) < toLevel) {
