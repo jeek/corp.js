@@ -325,9 +325,9 @@ class City {
     async enableSmartSupply() {
         while (!this.c.hasUnlockUpgrade("Smart Supply")) {
             await this.ns.asleep(100);
-            try {
+            if (this.c.getUnlockUpgradeCost("Smart Supply") <= this.funds && !this.c.hasUnlockUpgrade("Smart Supply")) {
                 this.c.unlockUpgrade("Smart Supply");
-            } catch { }
+            }
         }
         // Enable Smart Supply
         this.c.setSmartSupply(this.Division.name, this.name, true);
@@ -393,9 +393,7 @@ class City {
                                     this.pricing[product].phase = 2;
                                 }
                             }
-// try {
-                                this.c.sellProduct(this.Division.name, this.name, product, "MAX", (Math.floor((this.pricing[product].x_max + this.pricing[product].x_min) / 2)).toString() + "*MP", false);
-//                            } catch { }
+                            this.c.sellProduct(this.Division.name, this.name, product, "MAX", (Math.floor((this.pricing[product].x_max + this.pricing[product].x_min) / 2)).toString() + "*MP", false);
                         }
                     }
                 } else {
@@ -481,16 +479,11 @@ class City {
                 await this.ns.asleep(400);
             }
             if (this.getOffice.employees > 0) {
-                if (this.getOffice.avgEne < minEnergy) {
-                    try {
-                        this.c.buyCoffee(this.Division.name, this.name);
-                    } catch { }
+                if (this.getOffice.avgEne < minEnergy && this.getOffice.employees * this.c.getConstants().coffeeCostPerEmployee < this.funds) {
+                       this.c.buyCoffee(this.Division.name, this.name);
                 }
-                if (this.getOffice.avgHap < minHappy ||
-                    this.getOffice.avgMor < minMorale) {
-                    try {
+                if ((this.getOffice.avgHap < minHappy || this.getOffice.avgMor < minMorale) && this.getOffice.employees * this.c.getConstants().coffeeCostPerEmployee < this.funds) {
                         this.c.throwParty(this.Division.name, this.name, this.c.getConstants().coffeeCostPerEmployee);
-                    } catch { }
                 }
             }
             while (this.c.getCorporation().state == "START") {
@@ -602,12 +595,11 @@ class Division {
     }
     async Start() {
         while (this.c.getCorporation().divisions.map(div => [div, this.c.getDivision(div).type]).filter(x => x[1] == this.industry).length == 0) {
-            //            try {
-            this.c.expandIndustry(this.industry, Object.keys(this.settings).includes("name") ? this.settings["name"] : Object.keys(divisionNames).includes(this.industry) ? divisionNames[this.industry] : this.industry);
-            //            } catch {
-            //               for (let i = 0; i < 6; i++)
-            await this.WaitOneLoop();
-            //         }
+            if (this.c.getIndustryData(this.industry).startingCost <= this.funds) {
+                this.c.expandIndustry(this.industry, Object.keys(this.settings).includes("name") ? this.settings["name"] : Object.keys(divisionNames).includes(this.industry) ? divisionNames[this.industry] : this.industry);
+            } else {
+                await this.WaitOneLoop();
+            }
         }
         this.Cities.map(city => this.citiesObj[city] = new City(this.ns, this.Corp, this, city));
         await Promise.all(this.cities.map(city => city.Start()));
@@ -656,12 +648,7 @@ class Division {
     async Simple() {
         var cmdlineargs = this.ns.flags(cmdlineflags);
         while (!(this.c.getCorporation().divisions.map(x => this.c.getDivision(x)).map(x => x.type).includes(this.industry))) {
-            try {
-                await this.WaitOneLoop();
-            } catch {
-                for (let i = 0; i < 6; i++)
-                    await this.WaitOneLoop();
-            }
+            await this.WaitOneLoop();
         }
         this.Research(["Hi-Tech R&D Laboratory"]).then(this.Research(["Market-TA.I", "Market-TA.II"]));
         this.Pricing();
@@ -814,11 +801,9 @@ class Division {
     async Research(queue) {
         while (queue.map(x => this.c.hasResearched(this.name, x)).reduce((a, b) => a && b) == false) {
             let cost = queue.filter(x => !this.c.hasResearched(this.name, x)).map(x => this.c.getResearchCost(this.name, x)).reduce((a, b) => a + b, 0) * 2;
-            if (this.c.getDivision.research >= cost) {
+            if (this.getDivision.research >= cost) {
                 for (let item of queue) {
-                    try {
-                        this.c.research(this.name, item);
-                    } catch { }
+                    this.c.research(this.name, item);
                 }
             }
             await this.WaitOneLoop();
