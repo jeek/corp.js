@@ -165,7 +165,7 @@ class City {
         await this.Hire({ "Operations": 1, "Engineer": 1, "Business": 1 })
         this.coffeeparty();
     }
-    async warehouseFF(mysize = -1) {
+    async warehouseFF(mysize = -1, maintaining=false) {
         if (mysize == -1)
             mysize = this.warehouseSize;
         mysize = Math.floor(mysize);
@@ -180,7 +180,7 @@ class City {
             let didSomething = false;
             for (let material of ["AI Cores", "Hardware", "Real Estate", "Robots"]) {
                 let matIndex = ["AI Cores", "Hardware", "Real Estate", "Robots"].indexOf(material);
-                if (!Object.keys(this.industryData).includes("producedMaterials") || !Object.keys(this.industryData.producedMaterials).includes(material)) {
+                if ((!Object.keys(this.industryData).includes("producedMaterials") || !Object.keys(this.industryData.producedMaterials).includes(material)) && !maintaining) {
                     if (this.c.getMaterial(this.Division.name, this.name, material).qty >= mymats[matIndex]) {
                         this.c.buyMaterial(this.Division.name, this.name, material, 0);
                         this.c.sellMaterial(this.Division.name, this.name, material, (this.c.getMaterial(this.Division.name, this.name, material).qty - mymats[matIndex]) / 10, 0);
@@ -456,17 +456,19 @@ class City {
                 sizes[2] += productSize * this.c.getProduct(this.Division.name, product).cityData[this.name][0];
                 for (let material of Object.keys(this.industryData.requiredMaterials)) {
                     sizes[0] += myprod * this.c.getMaterialData(material).size * this.industryData.requiredMaterials[material];
-                    if (!["Hardware", "AI Cores", "Robots", "Real Estate"].includes(material))
+                    if (!"AI Cores", ["Hardware", "Real Estate", "Robots"].includes(material))
                         sizes[2] += this.c.getMaterialData(material).size * this.c.getMaterial(this.Division.name, this.name, material).qty;
                 }
             }
             let targetsize = this.c.getWarehouse(this.Division.name, this.name).size - (sizes[0] > sizes[1] ? sizes[0] : sizes[1]) * 1.1 - sizes[2];
             let sizecheck = this.optimize(targetsize / [.50, .70, .55, .57, .57, .57][this.round]);
-            if (sizecheck[0] > this.c.getMaterial(this.Division.name, this.name, "AI Cores").qty) {
-                await this.warehouseFF(targetsize);
+            if (sizecheck[2] > this.c.getMaterial(this.Division.name, this.name, "Real Estate").qty) {
+                await this.warehouseFF(targetsize, true);
             } else {
-                if (this.funds > this.c.getUpgradeWarehouseCost(this.Division.name, this.name)) {
-                    this.c.upgradeWarehouse(this.Division.name, this.name);
+                if (this.c.getWarehouse(this.Division.name, this.name).sizeUse > this.c.getWarehouse(this.Division.name, this.name).size * .95) {
+                    if (this.funds > this.c.getUpgradeWarehouseCost(this.Division.name, this.name)) {
+                        this.c.upgradeWarehouse(this.Division.name, this.name);
+                    }
                 }
             }
             while (this.c.getCorporation().state == "SALE")
@@ -548,6 +550,7 @@ class Division {
         this.industry = industry;
         this.settings = settings;
         this.citiesObj = {};
+        this.lastProduct = 2e9/1.1;
     }
     get round() {
         if (this.c.getCorporation().public)
@@ -836,14 +839,16 @@ class Division {
             }
             if (this.getDivision.products.length == 3 + this.c.hasResearched(this.name, "uPgrade: Capacity.I") + this.c.hasResearched(this.name, "uPgrade: Capacity.II")) {
                 let qlts = [];
-                for (let product of this.c.getDivision.products) {
+                for (let product of this.getDivision.products) {
                     qlts.push([this.c.getProduct(this.name, product).qlt, product]);
                 }
                 qlts = qlts.sort((a, b) => -a[0] + b[0]);
-                while (this.funds < this.lastProduct[type]) {
+                while (this.funds < this.lastProduct) {
                     await this.WaitOneLoop();
                 }
-                delete this.pricing[qlts[0][1]];
+                try {
+                    delete this.pricing[qlts[0][1]];
+                } catch { }
                 this.c.discontinueProduct(this.name, qlts[0][1]);
             }
             while (this.funds < this.lastProduct) {
