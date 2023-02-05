@@ -1,3 +1,5 @@
+let REPO = "https://raw.githubusercontent.com/jeek/corp.js/master/"
+
 class Update {
     constructor(ns, scriptName, repository) {
         this.ns = ns;
@@ -29,6 +31,7 @@ class Update {
         let code = "";
         for (let i = 0 ; i < seen.length ; i++) {
             let thisFile = this.ns.read("/temp/" + seen[i]).split("\n");
+            this.ns.tprint("        " + seen[i]);
             for (let j = 0 ; j < thisFile.length ; j++) {
                 if (thisFile[j].length >= 6 && thisFile[j].slice(0, 6) == "import") {
                     let newFile = thisFile[j].split(" ")[5].replace('"', '').replace('"', '').replace(";", "");
@@ -48,11 +51,6 @@ class Update {
             let thisFile = this.ns.read("/temp/" + importOrder[0]).split("\n");
             for (let j = 0 ; j < thisFile.length ; j++) {
                 if (thisFile[j].length >= 6 && thisFile[j].slice(0, 6) == "import") {
-                    let newFile = thisFile[j].split(" ")[5].replace('"', '').replace('"', '').replace(";", "");
-                    this.ns.tprint("         ", newFile);
-                    if (!seen.includes(newFile)) {
-                        seen.push(newFile)
-                    }
                     thisFile.splice(j, 1);
                     j -= 1;
                 }
