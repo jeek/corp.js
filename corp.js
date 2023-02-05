@@ -11,8 +11,7 @@ export async function main(ns) {
     var cmdlineargs = ns.flags(cmdlineflags);
     if (cmdlineargs['update']) {
         await (new Update(ns, "corp.js", REPO)).DownloadAndBuild();
-        let filteredArgs = ns.args;
-        filteredArgs.remove("--update");
+        let filteredArgs = ns.args.filter(x => x != "--update");
         if (0 == ns.run("corp.js", 1, ...filteredArgs)) {
             ns.spawn("corp.js", 1, ...filteredArgs);
         } else {
