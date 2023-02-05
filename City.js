@@ -1,4 +1,4 @@
-import { CorpBaseClass } from "CorpBaseClass.js";
+import { CorpBaseClass} from "CorpBaseClass.js";
 
 class City extends CorpBaseClass {
     constructor(ns, Corp, Division, CityName, settings={}) {
@@ -7,6 +7,15 @@ class City extends CorpBaseClass {
         this.Corp = Corp;
         this.Division = Division;
         this.pricing = {};
+        if (!Object.keys(settings).includes("minEnergy")) {
+            this.settings['minEnergy'] = 98;
+        }
+        if (!Object.keys(settings).includes("minHappy")) {
+            this.settings['minHappy'] = 98;
+        }
+        if (!Object.keys(settings).includes("minMorale")) {
+            this.settings['minMorale'] = 98;
+        }
         this.mults = ["aiCoreFactor", "hardwareFactor", "realEstateFactor", "robotFactor"].map(factor => Object.keys(this.c.getIndustryData(this.Division.industry)).includes(factor) ? this.c.getIndustryData(this.Division.industry)[factor] : 0);
     }
     get getOffice() {
@@ -272,13 +281,13 @@ class City extends CorpBaseClass {
     async getHappy() {
         while (true) {
             let happy = true;
-            if (this.getOffice.avgEne < minEnergy) {
+            if (this.getOffice.avgEne < this.settings.minEnergy) {
                 happy = false;
             }
-            if (this.getOffice.avgHap < minHappy) {
+            if (this.getOffice.avgHap < this.settings.minHappy) {
                 happy = false;
             }
-            if (this.getOffice.avgMor < minMorale) {
+            if (this.getOffice.avgMor < this.settings.minMorale) {
                 happy = false;
             }
             if (happy) {
@@ -452,10 +461,10 @@ class City extends CorpBaseClass {
                 await this.ns.asleep(400);
             }
             if (this.getOffice.employees > 0) {
-                if (this.getOffice.avgEne < minEnergy && this.getOffice.employees * this.c.getConstants().coffeeCostPerEmployee < this.funds) {
+                if (this.getOffice.avgEne < this.settings.minEnergy && this.getOffice.employees * this.c.getConstants().coffeeCostPerEmployee < this.funds) {
                     this.c.buyCoffee(this.Division.name, this.name);
                 }
-                if ((this.getOffice.avgHap < minHappy || this.getOffice.avgMor < minMorale) && this.getOffice.employees * this.c.getConstants().coffeeCostPerEmployee < this.funds) {
+                if ((this.getOffice.avgHap < this.settings.minHappy || this.getOffice.avgMor < this.settings.minMorale) && this.getOffice.employees * this.c.getConstants().coffeeCostPerEmployee < this.funds) {
                     this.c.throwParty(this.Division.name, this.name, this.c.getConstants().coffeeCostPerEmployee);
                 }
             }
