@@ -10,7 +10,7 @@ const cmdlineflags = [
 export async function main(ns) {
     var cmdlineargs = ns.flags(cmdlineflags);
     if (cmdlineargs['update']) {
-        await (new Update(ns, "corp.js", repo)).DownloadAndBuild();
+        await (new Update(ns, "corp.js", REPO)).DownloadAndBuild();
         let filteredArgs = ns.args;
         filteredArgs.remove("--update");
         if (0 == ns.run("corp.js", 1, ...filteredArgs)) {
