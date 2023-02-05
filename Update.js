@@ -44,7 +44,7 @@ class Update {
         }
         this.ns.tprint("    Assembling " + this.scriptName);
         for (let i = 0 ; i < importOrder.length ; i) {
-            this.ns.tprint("        " + thisfile[0]);
+            this.ns.tprint("        " + importOrder[0]);
             let thisFile = this.ns.read("/temp/" + importOrder[0]).split("\n");
             for (let j = 0 ; j < thisFile.length ; j++) {
                 if (thisFile[j].length >= 6 && thisFile[j].slice(0, 6) == "import") {
