@@ -1,6 +1,5 @@
 let REPO = "https://raw.githubusercontent.com/jeek/corp.js/master/"
 
-import { CorpBaseClass } from "CorpBaseClass.js";
 import { Update } from "Update.js";
 import { Corporation } from "Corporation.js";
 
