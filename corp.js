@@ -32,20 +32,11 @@ export async function main(ns) {
         let Corp = new Corporation(ns, settings);
         Corp.Start();
         if (Corp.round == 1)
-            Corp.StartDivision("Software", { "scam": true })
-        while (Corp.round < 2) {
-            await ns.asleep(0);
-        }
+            await Corp.StartDivision("Software", { "scam": true })
         if (Corp.round == 2)
-            Corp.StartDivision(Corp.funds < 680e9 ? "Software" : "Real Estate", { "scam": true })
-        while (Corp.round < 3) {
-            await ns.asleep(0);
-        }
+            await Corp.StartDivision(Corp.funds < 680e9 ? "Software" : "Real Estate", { "scam": true })
         if (Corp.round == 3)
-            Corp.StartDivision("Real Estate", { "scam": true })
-        while (Corp.round < 4) {
-            await ns.asleep(0);
-        }
+            await Corp.StartDivision("Real Estate", { "scam": true })
         Corp.StartDivision("Food", { "name": "jeek Heaviest Industries" });
         while (true) {
             await ns.asleep(10000);
