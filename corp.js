@@ -34,18 +34,42 @@ const cmdlineflags = [
     ["jakobag", false] // Use Jakob's round 1 agriculture method
 ]
 
-class City {
-    constructor(ns, Corp, Division, CityName) {
+class CorpBaseClass { // Functions shared between Corporation, Division, and City
+    constructor(ns, settings) {
         this.ns = ns;
         this.c = this.ns.corporation;
+        this.settings = settings;
+    }
+    get funds() {
+        return this.c.getCorporation().funds;
+    }
+    get round() {
+        if (this.c.getCorporation().public)
+            return 5;
+        return this.c.getInvestmentOffer().round;
+    }
+    get Cities() {
+        return Object.values(this.ns.enums.CityName);
+    }
+    async WaitOneLoop() {
+        let state = this.c.getCorporation().state;
+        while (this.c.getCorporation().state == state) {
+            await this.ns.asleep(this.c.getBonusTime() > 0 ? 100 : 200);
+        }
+        while (this.c.getCorporation().state != state) {
+            await this.ns.asleep(this.c.getBonusTime() > 0 ? 200 : 2000);
+        }
+    }
+}
+
+class City extends CorpBaseClass {
+    constructor(ns, Corp, Division, CityName, settings={}) {
+        super(ns, settings);
         this.name = CityName;
         this.Corp = Corp;
         this.Division = Division;
         this.pricing = {};
         this.mults = ["aiCoreFactor", "hardwareFactor", "realEstateFactor", "robotFactor"].map(factor => Object.keys(this.c.getIndustryData(this.Division.industry)).includes(factor) ? this.c.getIndustryData(this.Division.industry)[factor] : 0);
-    }
-    get funds() {
-        return this.c.getCorporation().funds;
     }
     get getOffice() {
         return this.c.getOffice(this.Division.name, this.name);
@@ -61,11 +85,6 @@ class City {
     }
     get warehouseSize() {
         return this.getWarehouse.size;
-    }
-    get round() {
-        if (this.c.getCorporation().public)
-            return 5;
-        return this.c.getInvestmentOffer().round;
     }
     calc(ai = 0, hw = 0, re = 0, rob = 0) {
         return (((.002 * ai + 1) ** this.mults[0]) * ((.002 * hw + 1) ** this.mults[1]) * ((.002 * re + 1) ** this.mults[2]) * ((.002 * rob + 1) ** this.mults[3])) ** .73
@@ -166,6 +185,31 @@ class City {
         await this.Hire({ "Operations": 1, "Engineer": 1, "Business": 1 })
         this.coffeeparty();
     }
+    async getWarehouseAPI() {
+        while (!this.c.hasUnlockUpgrade("Warehouse API")) {
+            if (this.c.getUnlockUpgradeCost("Warehouse API") <= this.funds) {
+                this.c.unlockUpgrade("Warehouse API");
+            } else {
+                await this.WaitOneLoop();
+            }
+        }
+        while (!this.c.hasWarehouse(this.Division.name, this.name)) {
+            if (this.c.getConstants().warehouseInitialCost <= this.funds) {
+                this.c.purchaseWarehouse(this.Division.name, this.name);
+            } else {
+                await this.WaitOneLoop();
+            }
+        }
+    }
+    async getOfficeAPI() {
+        while (!this.c.hasUnlockUpgrade("Office API")) {
+            if (this.c.getUnlockUpgradeCost("Office API") <= this.funds) {
+                this.c.unlockUpgrade("Office API");
+            } else {
+                await this.WaitOneLoop();
+            }
+        }
+    }
     async warehouseFF(mysize = -1, maintaining = false) {
         if (mysize == -1)
             mysize = this.warehouseSize;
@@ -237,11 +281,6 @@ class City {
                 roles[job] = 0;
             }
         }
-        let operations = Object.keys(roles).includes("Operations") ? roles["Operations"] : 0;
-        let engineer = Object.keys(roles).includes("Engineer") ? roles["Engineer"] : 0;
-        let rnd = Object.keys(roles).includes("Research & Development") ? roles["Research & Development"] : 0;
-        let management = Object.keys(roles).includes("Management") ? roles["Management"] : 0;
-        let business = Object.keys(roles).includes("Business") ? roles["Business"] : 0;
         let total = Object.values(roles).reduce((a, b) => a + b, 0);
         await this.getOfficeAPI();
         while (this.getOffice.size < total) {
@@ -292,31 +331,6 @@ class City {
             }
         }
     }
-    async getWarehouseAPI() {
-        while (!this.c.hasUnlockUpgrade("Warehouse API")) {
-            if (this.c.getUnlockUpgradeCost("Warehouse API") <= this.funds) {
-                this.c.unlockUpgrade("Warehouse API");
-            } else {
-                await this.WaitOneLoop();
-            }
-        }
-        while (!this.c.hasWarehouse(this.Division.name, this.name)) {
-            if (this.c.getConstants().warehouseInitialCost <= this.funds) {
-                this.c.purchaseWarehouse(this.Division.name, this.name);
-            } else {
-                await this.WaitOneLoop();
-            }
-        }
-    }
-    async getOfficeAPI() {
-        while (!this.c.hasUnlockUpgrade("Office API")) {
-            if (this.c.getUnlockUpgradeCost("Office API") <= this.funds) {
-                this.c.unlockUpgrade("Office API");
-            } else {
-                await this.WaitOneLoop();
-            }
-        }
-    }
     async getHappy() {
         while (true) {
             let happy = true;
@@ -350,6 +364,7 @@ class City {
     }
     async Pricing() {
         let phased = 0;
+        await this.WaitOneLoop();
         while (true) {
             while (this.c.getCorporation().state != "SALE") {
                 await this.ns.asleep(400);
@@ -428,9 +443,6 @@ class City {
                 await this.ns.asleep(400);
             }
         }
-    }
-    async WaitOneLoop() {
-        await this.Corp.WaitOneLoop();
     }
     async MaintainWarehouse() {
         let productSize = 0;
@@ -548,37 +560,19 @@ class City {
     }
 }
 
-class Division {
+class Division extends CorpBaseClass {
     constructor(ns, Corp, industry, settings = {}) {
-        this.ns = ns;
-        this.c = this.ns.corporation;
+        super(ns, settings);
         this.Corp = Corp;
         this.industry = industry;
-        this.settings = settings;
         this.citiesObj = {};
         this.lastProduct = 2e9 / 1.1;
-    }
-    get round() {
-        if (this.c.getCorporation().public)
-            return 5;
-        return this.c.getInvestmentOffer().round;
     }
     get name() {
         return this.c.getCorporation().divisions.map(div => [div, this.c.getDivision(div).type]).filter(x => x[1] == this.industry)[0][0];
     }
-    get funds() {
-        return this.c.getCorporation().funds;
-    }
-    get Cities() {
-        return Object.values(this.ns.enums.CityName);
-    }
     get cities() {
         return Object.values(this.citiesObj);
-    }
-    get round() {
-        if (this.c.getCorporation().public)
-            return 5;
-        return this.c.getInvestmentOffer().round;
     }
     get industryData() {
         return this.c.getIndustryData(this.industry);
@@ -617,12 +611,12 @@ class Division {
                 await this.WaitOneLoop();
             }
         }
-        this.Cities.map(city => this.citiesObj[city] = new City(this.ns, this.Corp, this, city));
+        this.Cities.map(city => this.citiesObj[city] = new City(this.ns, this.Corp, this, city, this.settings));
         await Promise.all(this.cities.map(city => city.Start()));
         this.HQ = this.citiesObj[HQ];
         let makesMaterials = Object.keys(this.industryData).includes("producedMaterials");
         let makesProducts = Object.keys(this.industryData).includes("product");
-        if (this.settings.scam) {
+        if (this.settings.scam && makesMaterials) {
             this.Scam();
         } else {
             (makesMaterials && makesProducts) ? this.Simple().then(this.Product()) : makesProducts ? this.Product() : this.Simple();
@@ -777,7 +771,7 @@ class Division {
                     } else {
                         let didSomething = this.cities.map(city => city.officeSize + 60 < this.HQ.officeSize);
                         for (let city of this.getDivision.cities) {
-                            if (this.c.getOffice(this.name, city).size + 60 < this.HQ.size) {
+                            if (this.c.getOffice(this.name, city).size + 60 < this.c.getOffice(this.name, HQ).size) {
                                 if (this.c.getOfficeSizeUpgradeCost(this.name, city, 3) <= this.funds) {
                                     await this[city].Hire({ "Operations": 1, "Engineer": 1, "Business": 1, "Management": 1, "Research & Development": this.c.getOffice(this.name, city).size - 1 });
                                     didSomething = true;
@@ -804,31 +798,84 @@ class Division {
         }
     }
     async Scam() {
-        this.Corp.GetUpgrade("Speech Processor Implants", 0); // 15
-        this.Corp.GetUpgrade("Smart Storage", 8); // 23
-//        this.Corp.GetUpgrade("Smart Factories", 7) // 36
-        Promise.all(this.cities.map(city => city.upgradeWarehouseLevel(7))); //27
-        // await Promise.all(["Nuoptimal Nootropic Injector Implants", "Speech Processor Implants", "Neural Accelators", "FocusWires"].map(upgrade => this.Corp.GetUpgrade(upgrade, 0))) // 10
-        // await this.Corp.GetUpgrade("Project Insight", 0); // 10
-        // await this.Corp.GetUpgrade("ABC SalesBots", 0); // 15
-        this.Advert(3); // 21
-        await Promise.all(this.cities.map(city => city.Hire({"Research & Development": 3})));
+        while (Object.keys(this.cities).length < 6) {
+            await this.ns.asleep(0);
+        }
+        // this.c.unlockUpgrade("Export");
+
+        // Get Upgrades
+        let promises = [];
+        await Promise.all(this.cities.map(city => city.Hire({"Research & Development": [3,3,9,9,9,9][this.round]})));
+        for (let i = 0 ; i <= 1 ; i+=.25) {
+            this.Corp.GetUpgrade("Smart Storage", Math.ceil(i * [8,8,23,23,23,23][this.round]));
+            this.Corp.GetUpgrade("Speech Processor Implants", Math.ceil(i * [0,0,15,15,15,15][this.round]));
+            this.Corp.GetUpgrade("Smart Factories", Math.ceil(i * [7,7,36,36,36,36][this.round]));
+            ["Nuoptimal Nootropic Injector Implants", "Speech Processor Implants", "Neural Accelerators", "FocusWires"]
+                .map(upgrade => this.Corp.GetUpgrade(upgrade, Math.ceil(i * [0,0,10,10,10,10][this.round])));
+            this.Advert(Math.ceil(i * [3,3,21,21,21,21][this.round]));
+            this.Corp.GetUpgrade("Project Insight", Math.ceil(i * [0,0,10,10,10,10][this.round]));
+            this.Corp.GetUpgrade("ABC SalesBots", Math.ceil(i * [0,0,15,15,15,15][this.round]));
+            this.Corp.GetUpgrade("Wilson Analytics", Math.ceil(i * [0,0,5,5,5,5][this.round]));
+            this.cities.map(city => city.upgradeWarehouseLevel(Math.ceil(i * [7,7,27,27,27,27][this.round])));
+        }
+        this.ns.tprint("Got Upgrades")
+
+        if (this.round >= 2) {
+            await this.ns.asleep(0);
+            for (let shell of this.c.getConstants().industryNames
+                .filter(industry => !this.c.getCorporation().divisions
+                    .map(division => this.c.getDivision(division).type).includes(industry)
+                )
+                .sort((a, b) => this.c.getIndustryData(a).startingCost - this.c.getIndustryData(b).startingCost)) {
+                if (this.c.getIndustryData(shell).startingCost <= this.funds) {
+                    this.c.expandIndustry(shell, shell + " Shell");
+                }
+            }
+            for (let i = 0 ; i <= 100 ; i += 1) {
+                this.cities.map(city => city.upgradeWarehouseLevel(Math.ceil(i)));
+            }
+        }
+
+        // Choose Output Material For Each City
+        let outputMat = {};
+        this.cities.map(city => outputMat[city.name] = this.industryData.producedMaterials.map(material => [material, this.c.getMaterial(this.name, city.name, material).cost / this.c.getMaterialData(material).size]).reduce((a, b) => a[1] > b[1] ? a : b)[0]);
+        // If this is the second pass for an industry, need to disable the sell from earlier
+        this.cities.map(city => this.c.sellMaterial(this.name, city.name, outputMat[city.name], 0, "MP"));
+        this.ns.tprint(outputMat)
+        this.ns.tprint("Chose Output Mat")
+        
+        // Get Happy
         await this.getHappy();
-        await Promise.all(this.cities.map(city => city.Hire({"Operations": 1, "Engineer": 1, "Management": 1})));
-        this.getDivision.cities.map(city => this.c.buyMaterial(this.name, city, {"Software": "AI Cores", "Real Estate": "Real Estate"}[this.industry], 1e200));
+        this.ns.tprint("Am happy")
+
+        // Buy Mats
+        this.cities.map(city => this.c.buyMaterial(this.name, city.name, outputMat[city.name], (this.c.getWarehouse(this.name, city.name).size - this.c.getWarehouse(this.name, city.name).sizeUsed - 1)/10/this.c.getMaterialData(outputMat[city.name]).size));
+        Object.keys(this.industryData.requiredMaterials).map(material => this.cities.map(city => this.c.buyMaterial(this.name, city.name, material, .0001)));
+        this.ns.tprint("Buying mats")
         await this.WaitOneLoop();
-        this.getDivision.cities.map(city => this.c.buyMaterial(this.name, city, {"Software": "AI Cores", "Real Estate": "Real Estate"}[this.industry], 0));
-        await Promise.all(this.cities.map(city => city.Hire({"Business": 3})));
-        this.getDivision.cities.map(city => this.c.sellMaterial(this.name, city, {"Software": "AI Cores", "Real Estate": "Real Estate"}[this.industry], "MAX", "MP"))
+        this.cities.map(city => this.c.buyMaterial(this.name, city.name, outputMat[city.name], 0));
+        Object.keys(this.industryData.requiredMaterials).map(material => this.cities.map(city => this.c.buyMaterial(this.name, city.name, material, 0)));
+        this.ns.tprint("Bought mats")
+
+        // Make a Thing
+        await Promise.all(this.cities.map(city => city.Hire({"Engineer": [3,3,9,27,81,343][this.round]})));
+        await this.WaitOneLoop();
+        this.ns.tprint("Made a thing")
+
+        // Sell All The Things
+        while (this.c.getCorporation().state != "START") {
+            await this.ns.asleep(0);
+        }
+        await Promise.all(this.cities.map(city => city.Hire({"Business": [3,3,9,27,81,343][this.round]})));
+        this.cities.map(city => this.c.sellMaterial(this.name, city.name, outputMat[city.name], "MAX", "MP"))
+
+        // Wait 5 rounds and then accept the offer
         for (let i = 0 ; i < 5 ; i++) {
-            await this.WaitOneLoop();
-         }
-         while (true) {
-            this.ns.tprint(this.c.getInvestmentOffer());
+            this.ns.tprint(i, " ", this.c.getInvestmentOffer());
             await this.WaitOneLoop();
         }
-        // await this.Corp.GetUpgrade("Wilson Analytics", 0); // 5
-        // this.c.unlockUpgrade("Export");
+        this.ns.tprint(5, " ", this.c.getInvestmentOffer());
+        this.c.acceptInvestmentOffer();
     }
     async Pricing() {
         this.cities.map(city => city.Pricing());
@@ -898,21 +945,11 @@ class Division {
     }
 }
 
-export class Corporation {
+export class Corporation extends CorpBaseClass {
     constructor(ns, settings = {}) {
-        this.ns = ns;
-        this.settings = settings;
-        this.c = this.ns.corporation;
+        super(ns, settings);
         this.started = false;
         this.divisionsObj = {}
-    }
-    get round() {
-        if (this.c.getCorporation().public)
-            return 5;
-        return this.c.getInvestmentOffer().round;
-    }
-    get funds() {
-        return this.c.getCorporation().funds;
     }
     get name() {
         return this.c.getCorporation().name;
@@ -970,23 +1007,42 @@ export class Corporation {
         }
         await this.ns.asleep(1);
         this.divisionsObj = {};
-        this.c.getCorporation().divisions.map(divname => Object({ "name": divname, "type": this.c.getDivision(divname).type })).map(x => this.divisionsObj[x.type] = new Division(this.ns, this, x.type, x.name))
-        Object.values(this.divisionsObj).map(x => x.Start());
+        this.c.getCorporation().divisions.map(divname => Object({ "name": divname, "type": this.c.getDivision(divname).type })).map(x => this.divisionsObj[x.type] = new Division(this.ns, this, x.type, x.name, this.settings));
+        if (!Object.keys(this.settings).includes("scam")) {
+            Object.values(this.divisionsObj).map(x => x.Start());
+        } else {
+            if (Object.keys(this.divisionsObj).includes("Food")) {
+                this.divisionsObj["Food"].Start();
+            } else {
+                if (Object.keys(this.divisionsObj).includes("Real Estate")) {
+                    this.divisionsObj["Real Estate"].Start();
+                } else {
+                    if (Object.keys(this.divisionsObj).includes("Software")) {
+                        this.divisionsObj["Software"].Start();
+                    }
+                }
+            }
+        }
         this.started = true;
         this.ns.toast("Corporation started.");
         this.Continue();
     }
     async Continue() {
-        for (let i = 1; i <= 4; i++) {
-            while (this.round == i && this.c.getInvestmentOffer().funds < (Object.keys(this.settings).includes("baseOffers") ? this.settings['baseOffers'][i - 1] : baseOffers[i - 1]) * this.ns.getBitNodeMultipliers().CorporationValuation) {
-                await this.WaitOneLoop();
+        if (!Object.keys(this.settings).includes("scam") || this.settings.scam == false) {
+            for (let i = 1; i <= 4; i++) {
+                while (this.round == i && this.c.getInvestmentOffer().funds < (Object.keys(this.settings).includes("baseOffers") ? this.settings['baseOffers'][i - 1] : baseOffers[i - 1]) * this.ns.getBitNodeMultipliers().CorporationValuation) {
+                    await this.WaitOneLoop();
+                }
+                if (this.round == i) {
+                    this.ns.tprint("Ding! " + i.toString());
+                    this.c.acceptInvestmentOffer();
+                }
             }
-            if (this.round == i) {
-                this.c.acceptInvestmentOffer();
-            }
+            if (!this.c.getCorporation().public)
+                this.c.goPublic(0);
         }
-        if (!this.c.getCorporation().public)
-            this.c.goPublic(0);
+        while (this.round < 5)
+            await this.WaitOneLoop();
         this.c.issueDividends(1);
         while (this.funds < 1e21)
             await this.WaitOneLoop();
@@ -996,6 +1052,10 @@ export class Corporation {
         if (!Object.keys(this.divisionsObj).includes(industry)) {
             this.divisionsObj[industry] = new Division(this.ns, this, industry, settings);
             this.divisionsObj[industry].Start();
+        } else {
+            if (Object.keys(this.settings).includes("scam")) {
+                this.divisionsObj[industry].Start();
+            }
         }
     }
     async GetUpgrade(upgrade, level = 1) {
@@ -1008,20 +1068,14 @@ export class Corporation {
             }
         }
     }
-    async WaitOneLoop() {
-        let state = this.c.getCorporation().state;
-        while (this.c.getCorporation().state == state) {
-            await this.ns.asleep(this.c.getBonusTime() > 0 ? 100 : 200);
-        }
-        while (this.c.getCorporation().state != state) {
-            await this.ns.asleep(this.c.getBonusTime() > 0 ? 200 : 2000);
-        }
-    }
 }
 
 export async function main(ns) {
-    var cmdlineargs =ns.flags(cmdlineflags);
+    var cmdlineargs = ns.flags(cmdlineflags);
     let settings = {"name": "jeek Heavy Industries"};
+    if (cmdlineargs['scam']) {
+        settings['scam'] = true;
+    }
     let Corp = new Corporation(ns, settings);
     Corp.Start();
     await ns.asleep(1000);
@@ -1030,12 +1084,19 @@ export async function main(ns) {
         await ns.asleep(60000);
     }
     if (cmdlineargs['scam']) {
-        Corp.StartDivision("Software", { "scam": true })
+        if (Corp.round == 1)
+            Corp.StartDivision("Software", { "scam": true })
         while (Corp.round < 2) {
             await ns.asleep(0);
         }
-        Corp.StartDivision("Real Estate", { "scam": true })
+        if (Corp.round == 2)
+            Corp.StartDivision(Corp.funds < 680e9 ? "Software" : "Real Estate", { "scam": true })
         while (Corp.round < 3) {
+            await ns.asleep(0);
+        }
+        if (Corp.round == 3)
+            Corp.StartDivision("Real Estate", { "scam": true })
+        while (Corp.round < 4) {
             await ns.asleep(0);
         }
         Corp.StartDivision("Food", { "name": "jeek Heaviest Industries" });
