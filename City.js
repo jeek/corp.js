@@ -1,4 +1,4 @@
-import { CorpBaseClass} from "CorpBaseClass.js";
+import { CorpBaseClass } from "CorpBaseClass.js";
 
 class City extends CorpBaseClass {
     constructor(ns, Corp, Division, CityName, settings={}) {
