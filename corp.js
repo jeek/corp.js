@@ -1,4 +1,4 @@
-REPO = "https://raw.githubusercontent.com/jeek/corp.js/master/"
+let REPO = "https://raw.githubusercontent.com/jeek/corp.js/master/"
 
 import { Update } from "Update.js";
 import { Corporation } from "Corporation.js";
