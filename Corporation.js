@@ -63,15 +63,15 @@ export class Corporation extends CorpBaseClass {
     async Start() {
         while ([undefined, false].includes(this.c.hasCorporation())) {
             try {
-                this.c.createCorporation(settings.includes("name") ? settings.name : "jeekCo", this.ns.getPlayer().bitNodeN == 3 ? false : true);
+                this.c.createCorporation(this.settings.includes("name") ? this.settings.name : "jeekCo", this.ns.getPlayer().bitNodeN == 3 ? false : true);
                 await this.ns.asleep(0);
             } catch {
                 await this.ns.asleep(60000);
             }
         }
         await this.ns.asleep(1);
-        if (!Object.keys(settings).includes("name")) {
-            delete settings["name"];
+        if (!Object.keys(this.settings).includes("name")) {
+            delete this.settings["name"];
         }
         this.divisionsObj = {};
         this.c.getCorporation().divisions.map(divname => Object({ "name": divname, "type": this.c.getDivision(divname).type })).map(x => this.divisionsObj[x.type] = new Division(this.ns, this, x.type, x.name, this.settings));
