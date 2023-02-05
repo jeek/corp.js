@@ -35,7 +35,7 @@ class Update {
             for (let j = 0 ; j < thisFile.length ; j++) {
                 if (thisFile[j].length >= 6 && thisFile[j].slice(0, 6) == "import") {
                     let newFile = thisFile[j].split(" ")[5].replace('"', '').replace('"', '').replace(";", "");
-                    this.ns.tprint("         ", newFile);
+                    this.ns.tprint("            ", newFile);
                     if (!seen.includes(newFile)) {
                         seen.push(newFile)
                     }
