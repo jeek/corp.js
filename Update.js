@@ -7,7 +7,7 @@ class Update {
     async Download() {
         let seen = [this.scriptName];
         for (let i = 0 ; i < seen.length ; i++) {
-            await this.ns.wget(repository + seen[i], "/temp/" + this.scriptName + "/" + seen[i]);
+            await this.ns.wget(this.repository + seen[i], "/temp/" + this.scriptName + "/" + seen[i]);
             let thisFile = this.ns.read("/temp/" + this.scriptName + "/" + seen[i]).split("\n");
             for (let j = 0 ; j < thisFile.length ; j++) {
                 if (j.length >= 6 && j.slice(0, 6) == "import") {
