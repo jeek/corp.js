@@ -15,6 +15,8 @@ export async function main(ns) {
         filteredArgs.remove("--update");
         if (0 == ns.run("corp.js", 1, ...filteredArgs)) {
             ns.spawn("corp.js", 1, ...filteredArgs);
+        } else {
+            ns.exit();
         }
     }
     let settings = {};
