@@ -5,32 +5,37 @@ class Update {
         this.repository = repository;
     }
     async Download() {
+        this.ns.tprint("Getting " + this.scriptName);
         let seen = [this.scriptName];
         for (let i = 0 ; i < seen.length ; i++) {
-            await this.ns.wget(this.repository + seen[i], "/temp/" + this.scriptName + "/" + seen[i]);
-            let thisFile = this.ns.read("/temp/" + this.scriptName + "/" + seen[i]).split("\n");
+            this.ns.tprint("    Downloading " + seen[i]);
+            await this.ns.wget(this.repository + seen[i], "/temp/" + seen[i]);
+            let thisFile = this.ns.read("/temp/" + seen[i]).split("\n");
             for (let j = 0 ; j < thisFile.length ; j++) {
-                if (j.length >= 6 && j.slice(0, 6) == "import") {
-                    let newFile = j.split(" ")[5].replace('"', '').replace("'", '');
+                if (thisFile[j].length >= 6 && thisFile[j].slice(0, 6) == "import") {
+                    let newFile = thisFile[j].split(" ")[5].replace('"', '').replace('"', '').replace(";", "");
+                    this.ns.tprint("         ", newFile);
                     if (!seen.includes(newFile)) {
-                        seen.push()
+                        seen.push(newFile)
                     }
                 }
             }
         }
     }
     async Build() {
+        this.ns.tprint("    Building " + this.scriptName);
         let seen = [this.scriptName];
         let code = "";
         for (let i = 0 ; i < seen.length ; i++) {
-            let thisFile = this.ns.read("/temp/" + this.scriptName + "/" + seen[i]).split("\n");
+            let thisFile = this.ns.read("/temp/" + seen[i]).split("\n");
             for (let j = 0 ; j < thisFile.length ; j++) {
-                if (j.length >= 6 && j.slice(0, 6) == "import") {
-                    let newFile = j.split(" ")[5].replace('"', '').replace("'", '');
+                if (thisFile[j].length >= 6 && thisFile[j].slice(0, 6) == "import") {
+                    let newFile = thisFile[j].split(" ")[5].replace('"', '').replace('"', '').replace(";", "");
+                    this.ns.tprint("         ", newFile);
                     if (!seen.includes(newFile)) {
-                        seen.push()
+                        seen.push(newFile)
                     }
-                    thisFile.splice(j,1);
+                    thisFile.splice(j, 1);
                     j -= 1;
                 }
             }
@@ -39,6 +44,7 @@ class Update {
         this.ns.write(this.scriptName, code, 'w');
     }
     async DownloadAndBuild() {
-        await this.Download().then(this.Build());
+        await this.Download();
+        await this.Build();
     }
 }

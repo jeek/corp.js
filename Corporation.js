@@ -1,4 +1,5 @@
 import { CorpBaseClass } from "CorpBaseClass.js";
+import { Division } from "Division.js";
 
 export class Corporation extends CorpBaseClass {
     constructor(ns, settings = {}) {
