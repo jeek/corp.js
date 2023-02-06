@@ -23,7 +23,7 @@ class Division extends CorpBaseClass {
             this.settings.productNames = ["A","B","C","D","E"].map(x => this.industry + " " + x);
         }
         // Stored here so all six warehouses can share a cache
-        this.Optimizer = new WarehouseOptimizer(...(["aiCoreFactor", "hardwareFactor", "realEstateFactor", "robotFactor"].map(factor => Object.keys(this.c.getIndustryData(this.Division.industry)).includes(factor) ? this.c.getIndustryData(this.Division.industry)[factor] : 0)));
+        this.Optimizer = new WarehouseOptimizer(...(["aiCoreFactor", "hardwareFactor", "realEstateFactor", "robotFactor"].map(factor => Object.keys(this.c.getIndustryData(this.industry)).includes(factor) ? this.c.getIndustryData(this.industry)[factor] : 0)));
     }
     get name() {
         return this.c.getCorporation().divisions.map(div => [div, this.c.getDivision(div).type]).filter(x => x[1] == this.industry)[0][0];
