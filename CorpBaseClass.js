@@ -2,7 +2,7 @@ class CorpBaseClass { // Functions shared between Corporation, Division, and Cit
     constructor(ns, settings) {
         this.ns = ns;
         this.c = this.ns.corporation;
-        this.settings = settings;
+        this.settings = JSON.parse(JSON.stringify(settings));
     }
     get funds() {
         return this.c.getCorporation().funds;

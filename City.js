@@ -6,6 +6,16 @@ class City extends CorpBaseClass {
         this.name = CityName;
         this.Corp = Corp;
         this.Division = Division;
+        if (Object.keys(this.settings).includes(CityName)) {
+            for (let objKey of Object.keys(this.settings[CityName])) {
+                this.settings[objKey] = this.settings[CityName][objKey];
+            }
+        }
+        for (let cityIt of this.Cities) {
+            if (Object.keys(this.settings).includes(cityIt)) {
+                delete this.settings[cityIt];
+            }
+        }
         this.pricing = {};
         if (!Object.keys(settings).includes("minEnergy")) {
             this.settings['minEnergy'] = 98;

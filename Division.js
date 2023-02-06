@@ -8,6 +8,16 @@ class Division extends CorpBaseClass {
         this.industry = industry;
         this.citiesObj = {};
         this.lastProduct = 2e9 / 1.1;
+        if (Object.keys(this.settings).includes(industry)) {
+            for (let objKey of Object.keys(this.settings['industry'])) {
+                this.settings[objKey] = this.settings[industry][objKey];
+            }
+        }
+        for (let industryIt of this.c.getConstants().industryNames) {
+            if (Object.keys(this.settings).includes(industryIt)) {
+                delete this.settings[industryIt];
+            }
+        }
         if (!Object.keys(this.settings).includes("productNames")) {
             this.settings.productNames = ["A","B","C","D","E"].map(x => this.industry + " " + x);
         }

@@ -22,6 +22,9 @@ export async function main(ns) {
     if (cmdlineargs['scam']) {
         settings.name = "TurboScam Ltd."
         settings['scam'] = true;
+        settings['Software'] = {'name': 'Microhard Inc.'};
+        settings['Real Estate'] = {'name': 'Doors Farmland LLC'};
+        settings['Food'] = {'name': 'jeek Heaviest Industries'}
         let Corp = new Corporation(ns, settings);
         Corp.Start();
         await ns.asleep(1000);
@@ -30,18 +33,20 @@ export async function main(ns) {
             await ns.asleep(60000);
         }
         if (Corp.round == 1)
-            await Corp.StartDivision("Software", { "scam": true })
+            await Corp.StartDivision("Software");
         if (Corp.round == 2)
-            await Corp.StartDivision(Corp.funds < 680e9 ? "Software" : "Real Estate", { "scam": true })
+            await Corp.StartDivision(Corp.funds < 680e9 ? "Software" : "Real Estate");
         if (Corp.round == 3)
-            await Corp.StartDivision("Real Estate", { "scam": true })
-        Corp.StartDivision("Food", { "name": "jeek Heaviest Industries" });
+            await Corp.StartDivision("Real Estate");
+        Corp.StartDivision("Food");
         while (true) {
             await ns.asleep(10000);
         }
     } else {
         settings.name = "jeek Heavy Industries"
         settings.baseOffers = [210e9, 5e15, 800e15, 500e18];
+        settings['Agriculture'] = {'name': 'jeek Heavier Industries'};
+        settings['Tobacco'] = {'name': 'jeek Heaviest Industries'};
         let Corp = new Corporation(ns, settings);
         Corp.Start();
         await ns.asleep(1000);
@@ -49,11 +54,11 @@ export async function main(ns) {
             ns.toast("Corporation not started yet.");
             await ns.asleep(60000);
         }
-        Corp.StartDivision("Agriculture", { "name": "jeek Heavier Industries" });
+        Corp.StartDivision("Agriculture");
         while (Corp.round < 3) {
             await ns.asleep(10000);
         }
-        Corp.StartDivision("Tobacco", { "name": "jeek Heaviest Industries" });
+        Corp.StartDivision("Tobacco");
         while (true) {
             await ns.asleep(10000);
         }
