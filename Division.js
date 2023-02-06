@@ -99,7 +99,7 @@ class Division extends CorpBaseClass {
         }
         this.Research(["Hi-Tech R&D Laboratory"]).then(this.Research(["Market-TA.I", "Market-TA.II"]));
         this.Pricing();
-        await Promise.all(this.cities.map(city => city.w.enableSmartSupply()));
+        await this.enableSmartSupply();
         let promises = [];
         // Get Employees
         this.cities.map(city => promises.push(city.o.Hire({ "Operations": 1, "Engineer": 1, "Business": 1 })));
@@ -181,7 +181,7 @@ class Division extends CorpBaseClass {
         this.Research(["Hi-Tech R&D Laboratory"]).then(this.Research(["Market-TA.I", "Market-TA.II"]));
         var cmdlineargs = this.ns.flags(cmdlineflags);
         this.Pricing();
-        await this.w.enableSmartSupply();
+        await this.enableSmartSupply();
         let promises = [];
         // Get Employees
         this.cities.map(city => promises.push(city.o.Hire(city.name == this.HQ ? { "Operations": 8, "Engineer": 9, "Business": 5, "Management": 8 } : { "Operations": 1, "Engineer": 1, "Business": 1, "Management": 1, "Research & Development": 5 })));
@@ -335,7 +335,7 @@ class Division extends CorpBaseClass {
         this.cities.map(city => city.w.Pricing());
     }
     async enableSmartSupply() {
-        await Promise.all(this.cities.map(city => city.o.enableSmartSupply()));
+        await Promise.all(this.cities.map(city => city.w.enableSmartSupply()));
     }
     async WaitOneLoop() {
         await this.Corp.WaitOneLoop();
