@@ -209,7 +209,7 @@ class Division extends CorpBaseClass {
                     if (this.c.getUpgradeLevel("Wilson Analytics") >= (10 * this.ns.getBitNodeMultipliers().CorporationValuation) && this.c.getHireAdVertCost(this.name) <= this.funds && this.getDivision.awareness + this.getDivision.popularity < 1e300) {
                         this.c.hireAdVert(this.name);
                     } else {
-                        let didSomething = this.cities.map(city => city.officeSize + 60 < this[HQ].officeSize);
+                        let didSomething = this.cities.map(city => city.officeSize + 60 < this[this.HQ].officeSize);
                         for (let city of this.getDivision.cities) {
                             if (this.c.getOffice(this.name, city).size + 60 < this.c.getOffice(this.name, this.HQ).size) {
                                 if (this.c.getOfficeSizeUpgradeCost(this.name, city, 3) <= this.funds) {
