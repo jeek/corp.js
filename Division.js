@@ -8,6 +8,9 @@ class Division extends CorpBaseClass {
         this.industry = industry;
         this.citiesObj = {};
         this.lastProduct = 2e9 / 1.1;
+        if (!Object.keys(this.settings).includes("productNames")) {
+            this.settings.productNames = ["A","B","C","D","E"].map(x => this.industry + " " + x);
+        }
     }
     get name() {
         return this.c.getCorporation().divisions.map(div => [div, this.c.getDivision(div).type]).filter(x => x[1] == this.industry)[0][0];
@@ -351,7 +354,7 @@ class Division extends CorpBaseClass {
             while (this.funds < 2e9) {
                 await this.WaitOneLoop();
             }
-            this.c.makeProduct(this.name, this.HQ, productNames[this.industry][0], 1e9, 1e9);
+            this.c.makeProduct(this.name, this.HQ, this.settings.productNames[0], 1e9, 1e9);
             this.lastProductPrice = 2e9;
         }
         while (true) {
@@ -379,7 +382,7 @@ class Division extends CorpBaseClass {
             let done = false;
             while (!done) {
                 try {
-                    this.c.makeProduct(this.name, this.HQ, productNames[this.industry].filter(x => !this.getDivision.products.includes(x))[0], Math.floor(this.funds / 2.1), Math.floor(this.funds / 2.1));
+                    this.c.makeProduct(this.name, this.HQ, this.settings.productNames.filter(x => !this.getDivision.products.includes(x))[0], Math.floor(this.funds / 2.1), Math.floor(this.funds / 2.1));
                     done = true;
                 } catch {
                     await this.WaitOneLoop();
