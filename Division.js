@@ -1,6 +1,6 @@
 import { CorpBaseClass } from "CorpBaseClass.js";
 import { City } from "City.js";
-import { WarehouseOptimizer } from "WarehouseOptimzer.js";
+import { WarehouseOptimizer } from "WarehouseOptimizer.js";
 
 class Division extends CorpBaseClass {
     constructor(ns, Corp, industry, settings = {}) {
