@@ -15,7 +15,8 @@ class Office extends CorpBaseClass {
         return this.Division.industryData;
     }
     async Start() {
-        await this.o.Hire({ "Operations": 1, "Engineer": 1, "Business": 1 })
+        if (this.size == 3 && this.c.getOffice(this.Division.name, this.name).employeeJobs["Unassigned"] == 3)
+            await this.Hire({ "Operations": 1, "Engineer": 1, "Business": 1 })
         this.coffeeparty();
     }
     async getOfficeAPI() {
@@ -42,7 +43,9 @@ class Office extends CorpBaseClass {
             } else {
                 await this.WaitOneLoop();
             }
-            for (let job of ["Operations", "Engineer", "Management", "Business", "Research & Development"]) {
+            for (let job of ["Operations", "Engineer", "Management", "Business", "Research & Development"]
+                .sort((a, b) => -this.c.getOffice(this.Division.name, this.name).employeejobs[a] + roles[a] + this.c.getOffice(this.Division.name, this.name).employeejobs[b] - roles[b])
+            ) {
                 while (this.getOffice.employees < this.getOffice.size && (this.getOffice.employeeJobs[job] < roles[job])) {
                     this.c.hireEmployee(this.Division.name, this.name, job);
                 }
@@ -52,7 +55,9 @@ class Office extends CorpBaseClass {
             this.c.hireEmployee(this.Division.name, this.name, "Unassigned");
         }
         let good = true;
-        for (let job of Object.keys(roles)) {
+        for (let job of Object.keys(roles)
+            .sort((a, b) => -this.c.getOffice(this.Division.name, this.name).employeejobs[a] + roles[a] + this.c.getOffice(this.Division.name, this.name).employeejobs[b] - roles[b])
+        ) {
             if (this.getOffice.employeeJobs[job] < roles[job]) {
                 try {
                     if (this.c.setAutoJobAssignment(this.Division.name, this.name, job, roles[job])) {
