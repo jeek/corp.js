@@ -7,6 +7,7 @@ class Warehouse extends CorpBaseClass {
         this.Division = City.Division;
         this.City = City;
         this.Optimizer = this.Division.Optimizer;
+        this.pricing = {};
     }
     get size() {
         if (!this.c.hasUnlockUpgrade("Warehouse API")) {
@@ -25,6 +26,9 @@ class Warehouse extends CorpBaseClass {
                 await this.WaitOneLoop();
             }
         }
+    }
+    async Start() {
+        await getAPI();
         while (!this.c.hasWarehouse(this.Division.name, this.name)) {
             if (this.c.getConstants().warehouseInitialCost <= this.funds) {
                 this.c.purchaseWarehouse(this.Division.name, this.name);
