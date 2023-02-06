@@ -61,7 +61,7 @@ class WarehouseOptimizer {
     }
     optimize(size) {
         if (!Object.keys(this.cache).includes(size)) {
-            this.cache[size] = optimizeit(size);
+            this.cache[size] = this.optimizeit(size);
         }
         return this.cache[size];
     }
