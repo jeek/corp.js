@@ -4,8 +4,8 @@ import { Division } from "Division.js";
 export class Corporation extends CorpBaseClass {
     constructor(ns, settings = {}) {
         super(ns, settings);
-        if (!Object.keys(settings).includes("HQ")) {
-            settings['HQ'] = "Sector-12";
+        if (!Object.keys(this.settings).includes("HQ")) {
+            this.settings['HQ'] = "Sector-12";
         }
         this.started = false;
         this.divisionsObj = {};
