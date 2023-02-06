@@ -282,13 +282,17 @@ class Division extends CorpBaseClass {
                 )
                 .sort((a, b) => this.c.getIndustryData(a).startingCost - this.c.getIndustryData(b).startingCost)) {
                 if (this.c.getIndustryData(shell).startingCost <= this.funds) {
-                    this.c.expandIndustry(shell, shell + " Shell");
+                    let name = shell + " Shell";
+                    if (Object.keys(this.Corp.settings).includes(shell) && Object.keys(this.Corp.settings[shell]).includes('name')) {
+                        name = this.Corp.settings[shell].name;
+                    }
+                    this.c.expandIndustry(shell, name);
                     await this.ns.asleep(0);
                 }
             }
             let done = false;
             while (!done) {
-                for (let city of this.Cities) {
+                for (let city of this.Cities.sorted((a, b) => this.c.getWarehouse(this.name, a).size - this.c.getWarehouse(this.name, b))) {
                     if (this.c.getUpgradeWarehouseCost(this.name, city) < this.funds) {
                         this.c.upgradeWarehouse(this.name, city);
                     } else {
