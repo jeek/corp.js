@@ -70,7 +70,7 @@ export class Corporation extends CorpBaseClass {
             }
         }
         await this.ns.asleep(1);
-        if (!Object.keys(this.settings).includes("name")) {
+        if (Object.keys(this.settings).includes("name")) {
             delete this.settings["name"];
         }
         this.divisionsObj = {};
