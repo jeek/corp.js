@@ -29,7 +29,7 @@ class Warehouse extends CorpBaseClass {
         }
     }
     async Start() {
-        await getAPI();
+        await this.getAPI();
         while (!this.c.hasWarehouse(this.Division.name, this.name)) {
             if (this.c.getConstants().warehouseInitialCost <= this.funds) {
                 this.c.purchaseWarehouse(this.Division.name, this.name);
