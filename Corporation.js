@@ -61,6 +61,8 @@ export class Corporation extends CorpBaseClass {
         return this.divisionsObj['Water Utilities'];
     }
     async Start() {
+        this.ns.tprint("Does corp exist");
+        this.ns.tprint(this.c.hasCorporation());
         while ([undefined, false].includes(this.c.hasCorporation())) {
             try {
                 this.c.createCorporation(this.settings.includes("name") ? this.settings.name : "Corporation", this.ns.getPlayer().bitNodeN == 3 ? false : true);
@@ -69,6 +71,7 @@ export class Corporation extends CorpBaseClass {
                 await this.ns.asleep(60000);
             }
         }
+        this.ns.tprint("Yes it does");
         await this.ns.asleep(1);
         if (!Object.keys(this.settings).includes("name")) {
             delete this.settings["name"];
