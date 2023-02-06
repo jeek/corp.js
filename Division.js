@@ -174,7 +174,7 @@ class Division extends CorpBaseClass {
             this.cities.map(city => promises.push(city.w.upgradeLevel(i)));
         }
         await Promise.all(promises); promises = [];
-        this.cities.map(city => city.w.MaintainWarehouse());
+        this.MaintainWarehouse();
         return true;
     }
     async Product() {
@@ -203,7 +203,7 @@ class Division extends CorpBaseClass {
             await this.WaitOneLoop();
         }
         await Promise.all(promises);
-        this.w.MaintainWarehouse();
+        this.MaintainWarehouse();
         for (let upgrade of ["DreamSense"]) {
             this.Corp.GetUpgrade(upgrade, 10);
         }
@@ -395,6 +395,6 @@ class Division extends CorpBaseClass {
         }
     }
     async MaintainWarehouse() {
-        this.cities.map(city => city.o.MaintainWarehouse);
+        this.cities.map(city => city.w.MaintainWarehouse);
     }
 }
