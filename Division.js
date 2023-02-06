@@ -255,7 +255,6 @@ class Division extends CorpBaseClass {
         while (Object.keys(this.cities).length < 6) {
             await this.ns.asleep(0);
         }
-        // this.c.unlockUpgrade("Export");
 
         // Get Upgrades
         let promises = [];
@@ -272,7 +271,6 @@ class Division extends CorpBaseClass {
             this.Corp.GetUpgrade("Wilson Analytics", Math.ceil(i * [0,0,5,5,5,5][this.round]));
             this.cities.map(city => city.upgradeWarehouseLevel(Math.ceil(i * [8,8,27,27,27,27][this.round])));
         }
-        this.ns.tprint("Got Upgrades")
 
         if (this.round >= 2) {
             await this.ns.asleep(0);
@@ -307,26 +305,20 @@ class Division extends CorpBaseClass {
         this.cities.map(city => outputMat[city.name] = this.industryData.producedMaterials.map(material => [material, this.c.getMaterial(this.name, city.name, material).cost / this.c.getMaterialData(material).size]).reduce((a, b) => a[1] > b[1] ? a : b)[0]);
         // If this is the second pass for an industry, need to disable the sell from earlier
         this.cities.map(city => this.c.sellMaterial(this.name, city.name, outputMat[city.name], 0, "MP"));
-        this.ns.tprint(outputMat)
-        this.ns.tprint("Chose Output Mat")
         
         // Get Happy
         await this.getHappy();
-        this.ns.tprint("Am happy")
 
         // Buy Mats
         this.cities.map(city => this.c.buyMaterial(this.name, city.name, outputMat[city.name], (this.c.getWarehouse(this.name, city.name).size - this.c.getWarehouse(this.name, city.name).sizeUsed - 1)/10/this.c.getMaterialData(outputMat[city.name]).size));
         Object.keys(this.industryData.requiredMaterials).map(material => this.cities.map(city => this.c.buyMaterial(this.name, city.name, material, .0001)));
-        this.ns.tprint("Buying mats")
         await this.WaitOneLoop();
         this.cities.map(city => this.c.buyMaterial(this.name, city.name, outputMat[city.name], 0));
         Object.keys(this.industryData.requiredMaterials).map(material => this.cities.map(city => this.c.buyMaterial(this.name, city.name, material, 0)));
-        this.ns.tprint("Bought mats")
 
         // Make a Thing
         await Promise.all(this.cities.map(city => city.Hire({"Engineer": [3,3,9,27,81,343][this.round]})));
         await this.WaitOneLoop();
-        this.ns.tprint("Made a thing")
 
         // Sell All The Things
         while (this.c.getCorporation().state != "START") {
@@ -337,10 +329,8 @@ class Division extends CorpBaseClass {
 
         // Wait 5 rounds and then accept the offer
         for (let i = 0 ; i < 5 ; i++) {
-            this.ns.tprint(i, " ", this.c.getInvestmentOffer());
             await this.WaitOneLoop();
         }
-        this.ns.tprint(5, " ", this.c.getInvestmentOffer());
         this.c.acceptInvestmentOffer();
     }
     async Pricing() {
