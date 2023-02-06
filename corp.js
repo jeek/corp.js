@@ -18,7 +18,7 @@ export async function main(ns) {
             ns.exit();
         }
     }
-    let settings = {};
+    let settings = {'cmdlineflags': cmdlineflags};
     if (cmdlineargs['scam']) {
         settings['scam'] = true;
         settings['Software'] = {'name': 'Software'};

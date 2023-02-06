@@ -91,7 +91,7 @@ class Division extends CorpBaseClass {
         await Promise.all(this.cities.map(city => city.o.getHappy()));
     }
     async Simple() {
-        var cmdlineargs = this.ns.flags(cmdlineflags);
+        var cmdlineargs = this.ns.flags(this.settings.cmdlineflags);
         while (!(this.c.getCorporation().divisions.map(x => this.c.getDivision(x)).map(x => x.type).includes(this.industry))) {
             await this.WaitOneLoop();
         }
@@ -176,8 +176,9 @@ class Division extends CorpBaseClass {
         return true;
     }
     async Product() {
-        this.Research(["Hi-Tech R&D Laboratory"]).then(this.Research(["Market-TA.I", "Market-TA.II"]));
-        var cmdlineargs = this.ns.flags(cmdlineflags);
+        this.Research(["Hi-Tech R&D Laboratory"])
+        this.Research(["Market-TA.I", "Market-TA.II"]);
+        var cmdlineargs = this.ns.flags(this.settings.cmdlineflags);
         this.Pricing();
         await this.enableSmartSupply();
         let promises = [];
