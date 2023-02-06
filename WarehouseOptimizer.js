@@ -8,7 +8,7 @@ class WarehouseOptimizer {
             this.ns.corporation.getMaterialData("Real Estate").size,
             this.ns.corporation.getMaterialData("Robots").size
         ]
-        this.cached = {};
+        this.cache = {};
     }
     calc(ai = 0, hw = 0, re = 0, rob = 0) {
         return (((.002 * ai + 1) ** this.mults[0]) * ((.002 * hw + 1) ** this.mults[1]) * ((.002 * re + 1) ** this.mults[2]) * ((.002 * rob + 1) ** this.mults[3])) ** .73
