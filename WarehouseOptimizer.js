@@ -3,10 +3,10 @@ class WarehouseOptimizer {
         this.mults = [ai, hw, re, rob];
         this.ns = ns;
         this.sizes = [
-            this.ns.getMaterialData("AI Cores").size,
-            this.ns.getMaterialData("Hardware").size,
-            this.ns.getMaterialData("Real Estate").size,
-            this.ns.getMaterialData("Robots").size
+            this.ns.corporation.getMaterialData("AI Cores").size,
+            this.ns.corporation.getMaterialData("Hardware").size,
+            this.ns.corporation.getMaterialData("Real Estate").size,
+            this.ns.corporation.getMaterialData("Robots").size
         ]
         this.cached = {};
     }
