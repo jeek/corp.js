@@ -189,7 +189,7 @@ class Division extends CorpBaseClass {
         promises.push(this.Advert(cmdlineargs['jakobag'] ? 2 : 1));
         await Promise.all(promises);
         promises = [];
-        this.w.Products();
+        this.Products();
         for (let upgrade of ["DreamSense"]) {
             promises.push(this.Corp.GetUpgrade(upgrade, Math.ceil(10 * this.ns.getBitNodeMultipliers().CorporationValuation)));
         }
