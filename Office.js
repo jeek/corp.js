@@ -11,7 +11,7 @@ class Office extends CorpBaseClass {
     get size() {
         return this.c.getOffice(this.Division.name, this.name).size;
     }
-    get size() {
+    get employees() {
         return this.c.getOffice(this.Division.name, this.name).employees;
     }
     get industryData() {
@@ -49,8 +49,7 @@ class Office extends CorpBaseClass {
             } else {
                 await this.WaitOneLoop();
             }
-            for (let job of ["Operations", "Engineer", "Management", "Business", "Research & Development"]
-                .sort((a, b) => -this.c.getOffice(this.Division.name, this.name).employeeJobs[a] + roles[a] + this.c.getOffice(this.Division.name, this.name).employeeJobs[b] - roles[b])
+            for (let job of ["Operations", "Engineer", "Management", "Business", "Research & Development"].sort((a, b) => -this.c.getOffice(this.Division.name, this.name).employeeJobs[a] + roles[a] + this.c.getOffice(this.Division.name, this.name).employeeJobs[b] - roles[b])
             ) {
                 while (this.employees < this.size && (this.getOffice.employeeJobs[job] < roles[job])) {
                     this.c.hireEmployee(this.Division.name, this.name, job);
@@ -61,8 +60,7 @@ class Office extends CorpBaseClass {
             this.c.hireEmployee(this.Division.name, this.name, "Unassigned");
         }
         let good = true;
-        for (let job of Object.keys(roles)
-            .sort((a, b) => -this.c.getOffice(this.Division.name, this.name).employeeJobs[a] + roles[a] + this.c.getOffice(this.Division.name, this.name).employeeJobs[b] - roles[b])
+        for (let job of Object.keys(roles).sort((a, b) => -this.c.getOffice(this.Division.name, this.name).employeeJobs[a] + roles[a] + this.c.getOffice(this.Division.name, this.name).employeeJobs[b] - roles[b])
         ) {
             if (this.getOffice.employeeJobs[job] < roles[job]) {
                 try {
