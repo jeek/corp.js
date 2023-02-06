@@ -50,7 +50,7 @@ class Office extends CorpBaseClass {
                 await this.WaitOneLoop();
             }
             for (let job of ["Operations", "Engineer", "Management", "Business", "Research & Development"]
-                .sort((a, b) => -this.c.getOffice(this.Division.name, this.name).employeejobs[a] + roles[a] + this.c.getOffice(this.Division.name, this.name).employeejobs[b] - roles[b])
+                .sort((a, b) => -this.c.getOffice(this.Division.name, this.name).employeeJobs[a] + roles[a] + this.c.getOffice(this.Division.name, this.name).employeeJobs[b] - roles[b])
             ) {
                 while (this.employees < this.size && (this.getOffice.employeeJobs[job] < roles[job])) {
                     this.c.hireEmployee(this.Division.name, this.name, job);
@@ -62,7 +62,7 @@ class Office extends CorpBaseClass {
         }
         let good = true;
         for (let job of Object.keys(roles)
-            .sort((a, b) => -this.c.getOffice(this.Division.name, this.name).employeejobs[a] + roles[a] + this.c.getOffice(this.Division.name, this.name).employeejobs[b] - roles[b])
+            .sort((a, b) => -this.c.getOffice(this.Division.name, this.name).employeeJobs[a] + roles[a] + this.c.getOffice(this.Division.name, this.name).employeeJobs[b] - roles[b])
         ) {
             if (this.getOffice.employeeJobs[job] < roles[job]) {
                 try {
