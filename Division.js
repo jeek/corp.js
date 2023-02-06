@@ -363,6 +363,9 @@ class Division extends CorpBaseClass {
             while (this.c.getProduct(this.name, this.getDivision.products[this.getDivision.products.length - 1]).developmentProgress < 100) {
                 await this.WaitOneLoop();
             }
+            this.cities.map(city =>
+                (Object.keys(city.w.pricing).includes(this.c.getProduct(this.name, this.getDivision.products[this.getDivision.products.length - 1]))) ?
+                    delete city.w.pricing[this.c.getProduct(this.name, this.getDivision.products[this.getDivision.products.length - 1])] : 0 )
             if (this.getDivision.products.length == 3 + this.c.hasResearched(this.name, "uPgrade: Capacity.I") + this.c.hasResearched(this.name, "uPgrade: Capacity.II")) {
                 let qlts = [];
                 for (let product of this.getDivision.products) {

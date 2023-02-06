@@ -132,6 +132,7 @@ class Warehouse extends CorpBaseClass {
                 if (!this.c.hasResearched(this.Division.name, "Market-TA.II")) {
                     if (this.c.getProduct(this.Division.name, product).developmentProgress >= 100) {
                         if (!(Object.keys(this.pricing).includes(product))) {
+                            this.c.sellProduct(this.Division.name, this.name, product, "MAX", "MP", false);
                             this.pricing[product] = {
                                 'x_min': 1,
                                 'x_max': 1,
@@ -191,14 +192,17 @@ class Warehouse extends CorpBaseClass {
                         }
                     }
                 } else {
-                    if (phased == 0) {
-                        phased = 1;
+                    if (!(Object.keys(this.pricing).includes(product))) {
+                        this.pricing[product] = {"phase": 4};
+                    }
+                    if (this.pricing[product].phase <= 4) {
+                        this.pricing[product].phase = 5;
                         this.c.sellProduct(this.Division.name, this.name, product, "MAX", "MP", false);
                         this.c.setProductMarketTA1(this.Division.name, product, true);
                         this.c.setProductMarketTA2(this.Division.name, product, false);
                     } else {
-                        if (phased == 1) {
-                            phased = 2;
+                        if (this.pricing[product].phase==5) {
+                            this.pricing[product].phase = 6;
                             this.c.setProductMarketTA1(this.Division.name, product, false);
                             this.c.setProductMarketTA2(this.Division.name, product, true);
                         }
