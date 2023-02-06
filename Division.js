@@ -56,7 +56,6 @@ class Division extends CorpBaseClass {
         return this.c.getDivision(this.name);
     }
     async Start() {
-        this.ns.tprint("Starting " + this.name);
         while (this.c.getCorporation().divisions.map(div => [div, this.c.getDivision(div).type]).filter(x => x[1] == this.industry).length == 0) {
             if (this.c.getIndustryData(this.industry).startingCost <= this.funds) {
                 this.c.expandIndustry(this.industry, Object.keys(this.settings).includes("name") ? this.settings["name"] : this.industry);
@@ -73,7 +72,6 @@ class Division extends CorpBaseClass {
         } else {
             (makesMaterials && makesProducts) ? this.Simple().then(this.Product()) : makesProducts ? this.Product() : this.Simple();
         }
-        this.ns.tprint("Started " + this.name);
     }
     async Advert(toLevel = 1) {
         while (this.c.getHireAdVertCount(this.name) < toLevel) {
