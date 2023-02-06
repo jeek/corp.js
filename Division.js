@@ -207,6 +207,7 @@ class Division extends CorpBaseClass {
         for (let upgrade of ["DreamSense"]) {
             this.Corp.GetUpgrade(upgrade, 10);
         }
+        await this[this.HQ].o.Hire({ "Operations": Math.floor(this.c.getOffice(this.name, this.HQ).size / 3.5), "Engineer": Math.floor(this.c.getOffice(this.name, this.HQ).size / 3.5), "Business": this.c.getOffice(this.name, this.HQ).size - 3 * Math.floor(this.c.getOffice(this.name, this.HQ).size / 3.5), "Management": Math.floor(this.c.getOffice(this.name, this.HQ).size / 3.5) });
         while (true) {
             if (this.c.getUpgradeLevelCost("Wilson Analytics") <= this.funds) {
                 this.c.levelUpgrade("Wilson Analytics");
