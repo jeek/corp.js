@@ -206,7 +206,7 @@ class Division extends CorpBaseClass {
                     let size = this.c.getOffice(this.name, this.HQ).size + 15;
                     let main = Math.floor(size / 3.5);
                     let bus = size - 3 * main;
-                    await this.HQ.Hire({ "Operations": main, "Engineer": main, "Business": bus, "Management": main });
+                    await this[this.HQ].Hire({ "Operations": main, "Engineer": main, "Business": bus, "Management": main });
                 }
                 else {
                     if (this.c.getUpgradeLevel("Wilson Analytics") >= (10 * this.ns.getBitNodeMultipliers().CorporationValuation) && this.c.getHireAdVertCost(this.name) <= this.funds && this.getDivision.awareness + this.getDivision.popularity < 1e300) {
