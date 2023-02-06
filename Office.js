@@ -9,7 +9,10 @@ class Office extends CorpBaseClass {
         this.name = this.City.name;
     }
     get size() {
-        return this.c.getOffice(this.Division.name, this.name);
+        return this.c.getOffice(this.Division.name, this.name).size;
+    }
+    get size() {
+        return this.c.getOffice(this.Division.name, this.name).employees;
     }
     get industryData() {
         return this.Division.industryData;
@@ -40,7 +43,7 @@ class Office extends CorpBaseClass {
         }
         let total = Object.values(roles).reduce((a, b) => a + b, 0);
         await this.getAPI();
-        while (this.getOffice.size < total) {
+        while (this.size < total) {
             if (this.c.getOfficeSizeUpgradeCost(this.Division.name, this.name, 3) <= this.funds) {
                 this.c.upgradeOfficeSize(this.Division.name, this.name, 3);
             } else {
@@ -49,12 +52,12 @@ class Office extends CorpBaseClass {
             for (let job of ["Operations", "Engineer", "Management", "Business", "Research & Development"]
                 .sort((a, b) => -this.c.getOffice(this.Division.name, this.name).employeejobs[a] + roles[a] + this.c.getOffice(this.Division.name, this.name).employeejobs[b] - roles[b])
             ) {
-                while (this.getOffice.employees < this.getOffice.size && (this.getOffice.employeeJobs[job] < roles[job])) {
+                while (this.employees < this.size && (this.getOffice.employeeJobs[job] < roles[job])) {
                     this.c.hireEmployee(this.Division.name, this.name, job);
                 }
             }
         }
-        while (this.getOffice.employees < this.getOffice.size) {
+        while (this.employees < this.size) {
             this.c.hireEmployee(this.Division.name, this.name, "Unassigned");
         }
         let good = true;
