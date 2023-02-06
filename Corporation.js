@@ -74,7 +74,7 @@ export class Corporation extends CorpBaseClass {
             delete this.settings["name"];
         }
         this.divisionsObj = {};
-        this.c.getCorporation().divisions.map(divname => Object({ "name": divname, "type": this.c.getDivision(divname).type })).map(x => this.divisionsObj[x.type] = new Division(this.ns, this, x.type, x.name, this.settings));
+        this.c.getCorporation().divisions.map(divname => Object({ "name": divname, "type": this.c.getDivision(divname).type })).map(x => this.divisionsObj[x.type] = new Division(this.ns, this, x.type, this.settings));
         if (!Object.keys(this.settings).includes("scam")) {
             Object.values(this.divisionsObj).map(x => x.Start());
         } else {
