@@ -98,7 +98,7 @@ class Division extends CorpBaseClass {
             await this.WaitOneLoop();
         }
         this.Research(["Hi-Tech R&D Laboratory"]).then(this.Research(["Market-TA.I", "Market-TA.II"]));
-        this.w.Pricing();
+        this.Pricing();
         await Promise.all(this.cities.map(city => city.w.enableSmartSupply()));
         let promises = [];
         // Get Employees
@@ -180,7 +180,7 @@ class Division extends CorpBaseClass {
     async Product() {
         this.Research(["Hi-Tech R&D Laboratory"]).then(this.Research(["Market-TA.I", "Market-TA.II"]));
         var cmdlineargs = this.ns.flags(cmdlineflags);
-        this.w.Pricing();
+        this.Pricing();
         await this.w.enableSmartSupply();
         let promises = [];
         // Get Employees
@@ -332,7 +332,7 @@ class Division extends CorpBaseClass {
         this.c.acceptInvestmentOffer();
     }
     async Pricing() {
-        this.cities.map(city => city.Pricing());
+        this.cities.map(city => city.w.Pricing());
     }
     async enableSmartSupply() {
         await Promise.all(this.cities.map(city => city.o.enableSmartSupply()));
