@@ -74,7 +74,6 @@ class Division extends CorpBaseClass {
         } else {
             (makesMaterials && makesProducts) ? this.Simple().then(this.Product()) : makesProducts ? this.Product() : this.Simple();
         }
-        this.ns.tprint(this.industry + " ", this.settings);
     }
     async Advert(toLevel = 1) {
         while (this.c.getHireAdVertCount(this.name) < toLevel) {

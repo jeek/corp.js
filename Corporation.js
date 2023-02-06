@@ -61,8 +61,6 @@ export class Corporation extends CorpBaseClass {
         return this.divisionsObj['Water Utilities'];
     }
     async Start() {
-        this.ns.tprint("Does corp exist");
-        this.ns.tprint(this.c.hasCorporation());
         while ([undefined, false].includes(this.c.hasCorporation())) {
             try {
                 this.c.createCorporation(this.settings.includes("name") ? this.settings.name : "Corporation", this.ns.getPlayer().bitNodeN == 3 ? false : true);
@@ -71,12 +69,10 @@ export class Corporation extends CorpBaseClass {
                 await this.ns.asleep(60000);
             }
         }
-        this.ns.tprint("Yes it does");
         await this.ns.asleep(1);
         if (!Object.keys(this.settings).includes("name")) {
             delete this.settings["name"];
         }
-        this.ns.tprint("Corp ", this.settings);
         this.divisionsObj = {};
         this.c.getCorporation().divisions.map(divname => Object({ "name": divname, "type": this.c.getDivision(divname).type })).map(x => this.divisionsObj[x.type] = new Division(this.ns, this, x.type, this.settings));
         if (!Object.keys(this.settings).includes("scam")) {
@@ -105,7 +101,6 @@ export class Corporation extends CorpBaseClass {
                     await this.WaitOneLoop();
                 }
                 if (this.round == i) {
-                    this.ns.tprint("Ding! " + i.toString());
                     this.c.acceptInvestmentOffer();
                 }
             }
