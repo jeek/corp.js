@@ -1,4 +1,4 @@
-let REPO = "https://raw.githubusercontent.com/jeek/corp.js/master/"
+let REPO = "https://raw.githubusercontent.com/jeek/corp.js/main/"
 
 class Update {
     constructor(ns, scriptName, repository) {
