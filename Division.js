@@ -203,7 +203,7 @@ class Division extends CorpBaseClass {
         await Promise.all(promises);
         this.w.MaintainWarehouse();
         for (let upgrade of ["DreamSense"]) {
-            promises.push(this.Corp.GetUpgrade(upgrade, 10));
+            this.Corp.GetUpgrade(upgrade, 10);
         }
         while (true) {
             if (this.c.getUpgradeLevelCost("Wilson Analytics") <= this.funds) {
