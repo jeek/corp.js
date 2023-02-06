@@ -9,7 +9,7 @@ class Division extends CorpBaseClass {
         this.citiesObj = {};
         this.lastProduct = 2e9 / 1.1;
         if (Object.keys(this.settings).includes(industry)) {
-            for (let objKey of Object.keys(this.settings['industry'])) {
+            for (let objKey of Object.keys(this.settings[industry])) {
                 this.settings[objKey] = this.settings[industry][objKey];
             }
         }
