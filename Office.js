@@ -14,6 +14,9 @@ class Office extends CorpBaseClass {
     get industryData() {
         return this.Division.industryData;
     }
+    get getOffice() {
+        return this.c.getOffice(this.Division.name, this.name);
+    }
     async Start() {
         await this.getAPI();
         if (this.size == 3 && this.c.getOffice(this.Division.name, this.name).employeeJobs["Unassigned"] == 3)
