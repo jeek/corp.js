@@ -8,6 +8,7 @@ class Warehouse extends CorpBaseClass {
         this.City = City;
         this.Optimizer = this.Division.Optimizer;
         this.pricing = {};
+        this.name = this.City.name;
     }
     get size() {
         if (!this.c.hasUnlockUpgrade("Warehouse API")) {

@@ -6,6 +6,7 @@ class Office extends CorpBaseClass {
         this.Corp = City.Corp;
         this.Division = City.Division;
         this.City = City;
+        this.name = this.City.name;
     }
     get size() {
         return this.c.getOffice(this.Division.name, this.name);
