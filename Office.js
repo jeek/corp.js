@@ -15,11 +15,12 @@ class Office extends CorpBaseClass {
         return this.Division.industryData;
     }
     async Start() {
+        await this.getAPI();
         if (this.size == 3 && this.c.getOffice(this.Division.name, this.name).employeeJobs["Unassigned"] == 3)
             await this.Hire({ "Operations": 1, "Engineer": 1, "Business": 1 })
         this.coffeeparty();
     }
-    async getOfficeAPI() {
+    async getAPI() {
         while (!this.c.hasUnlockUpgrade("Office API")) {
             if (this.c.getUnlockUpgradeCost("Office API") <= this.funds) {
                 this.c.unlockUpgrade("Office API");
@@ -29,14 +30,13 @@ class Office extends CorpBaseClass {
         }
     }
     async Hire(roles) {
-        await this.getOfficeAPI();
         for (let job of ["Operations", "Engineer", "Management", "Business", "Research & Development"]) {
             if (!Object.keys(roles).includes(job)) {
                 roles[job] = 0;
             }
         }
         let total = Object.values(roles).reduce((a, b) => a + b, 0);
-        await this.getOfficeAPI();
+        await this.getAPI();
         while (this.getOffice.size < total) {
             if (this.c.getOfficeSizeUpgradeCost(this.Division.name, this.name, 3) <= this.funds) {
                 this.c.upgradeOfficeSize(this.Division.name, this.name, 3);
@@ -90,6 +90,7 @@ class Office extends CorpBaseClass {
         }
     }
     async getHappy() {
+        await this.getAPI();
         while (true) {
             let happy = true;
             if (this.getOffice.avgEne < this.settings.minEnergy) {
@@ -108,6 +109,7 @@ class Office extends CorpBaseClass {
         }
     }
     async coffeeparty() {
+        await this.getAPI();
         while (true) {
             while (this.c.getCorporation().state != "START") {
                 await this.ns.asleep(400);
