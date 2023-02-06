@@ -63,7 +63,7 @@ export class Corporation extends CorpBaseClass {
     async Start() {
         while ([undefined, false].includes(this.c.hasCorporation())) {
             try {
-                this.c.createCorporation(this.settings.includes("name") ? this.settings.name : "jeekCo", this.ns.getPlayer().bitNodeN == 3 ? false : true);
+                this.c.createCorporation(this.settings.includes("name") ? this.settings.name : "Corporation", this.ns.getPlayer().bitNodeN == 3 ? false : true);
                 await this.ns.asleep(0);
             } catch {
                 await this.ns.asleep(60000);

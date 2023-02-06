@@ -20,11 +20,10 @@ export async function main(ns) {
     }
     let settings = {};
     if (cmdlineargs['scam']) {
-        settings.name = "TurboScam Ltd."
         settings['scam'] = true;
-        settings['Software'] = {'name': 'Microhard Inc.'};
-        settings['Real Estate'] = {'name': 'Doors Farmland LLC'};
-        settings['Food'] = {'name': 'jeek Heaviest Industries'}
+        settings['Software'] = {'name': 'Software'};
+        settings['Real Estate'] = {'name': 'Real Estate'};
+        settings['Food'] = {'name': 'Food'}
         let Corp = new Corporation(ns, settings);
         Corp.Start();
         await ns.asleep(1000);
@@ -43,10 +42,7 @@ export async function main(ns) {
             await ns.asleep(10000);
         }
     } else {
-        settings.name = "jeek Heavy Industries"
         settings.baseOffers = [210e9, 5e15, 800e15, 500e18];
-        settings['Agriculture'] = {'name': 'jeek Heavier Industries'};
-        settings['Tobacco'] = {'name': 'jeek Heaviest Industries'};
         let Corp = new Corporation(ns, settings);
         Corp.Start();
         await ns.asleep(1000);
