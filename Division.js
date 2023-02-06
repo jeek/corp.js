@@ -50,7 +50,7 @@ class Division extends CorpBaseClass {
     async Start() {
         while (this.c.getCorporation().divisions.map(div => [div, this.c.getDivision(div).type]).filter(x => x[1] == this.industry).length == 0) {
             if (this.c.getIndustryData(this.industry).startingCost <= this.funds) {
-                this.c.expandIndustry(this.industry, Object.keys(this.settings).includes("name") ? this.settings["name"] : Object.keys(divisionNames).includes(this.industry) ? divisionNames[this.industry] : this.industry);
+                this.c.expandIndustry(this.industry, Object.keys(this.settings).includes("name") ? this.settings["name"] : this.industry);
             } else {
                 await this.WaitOneLoop();
             }
