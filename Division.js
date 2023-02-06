@@ -1,5 +1,6 @@
 import { CorpBaseClass } from "CorpBaseClass.js";
 import { City } from "City.js";
+import { WarehouseOptimizer } from "WarehouseOptimzer.js";
 
 class Division extends CorpBaseClass {
     constructor(ns, Corp, industry, settings = {}) {
@@ -21,6 +22,8 @@ class Division extends CorpBaseClass {
         if (!Object.keys(this.settings).includes("productNames")) {
             this.settings.productNames = ["A","B","C","D","E"].map(x => this.industry + " " + x);
         }
+        // Stored here so all six warehouses can share a cache
+        this.Optimizer = new WarehouseOptimizer(...(["aiCoreFactor", "hardwareFactor", "realEstateFactor", "robotFactor"].map(factor => Object.keys(this.c.getIndustryData(this.Division.industry)).includes(factor) ? this.c.getIndustryData(this.Division.industry)[factor] : 0)));
     }
     get name() {
         return this.c.getCorporation().divisions.map(div => [div, this.c.getDivision(div).type]).filter(x => x[1] == this.industry)[0][0];
@@ -48,11 +51,6 @@ class Division extends CorpBaseClass {
     }
     get Volhaven() {
         return this.citiesObj['Volhaven'];
-    }
-    get round() {
-        if (this.c.getCorporation().public)
-            return 5;
-        return this.c.getInvestmentOffer().round;
     }
     get getDivision() {
         return this.c.getDivision(this.name);
@@ -90,8 +88,7 @@ class Division extends CorpBaseClass {
         while (!this.c.getCorporation().divisions.map(x => this.c.getDivision(x).type).includes(this.industry)) {
             await this.WaitOneLoop();
         }
-        let promises = this.cities.map(city => city.getHappy());
-        await Promise.all(promises);
+        await Promise.all(this.cities.map(city => city.o.getHappy()));
     }
     async Simple() {
         var cmdlineargs = this.ns.flags(cmdlineflags);
@@ -99,41 +96,41 @@ class Division extends CorpBaseClass {
             await this.WaitOneLoop();
         }
         this.Research(["Hi-Tech R&D Laboratory"]).then(this.Research(["Market-TA.I", "Market-TA.II"]));
-        this.Pricing();
-        await Promise.all(this.cities.map(city => city.enableSmartSupply()));
+        this.w.Pricing();
+        await Promise.all(this.cities.map(city => city.w.enableSmartSupply()));
         let promises = [];
         // Get Employees
-        this.cities.map(city => promises.push(city.Hire({ "Operations": 1, "Engineer": 1, "Business": 1 })));
+        this.cities.map(city => promises.push(city.o.Hire({ "Operations": 1, "Engineer": 1, "Business": 1 })));
         // Buy 1 advert
         promises.push(this.Advert(cmdlineargs['jakobag'] ? 2 : 1));
         if (cmdlineargs['jakobag']) {
             promises.push(this.Corp.GetUpgrade("Smart Storage", 3));
-            this.cities.map(city => promises.push(city.upgradeWarehouseLevel(5)));
+            this.cities.map(city => promises.push(city.w.upgradeLevel(5)));
         } else {
-            this.cities.map(city => promises.push(city.upgradeWarehouseLevel(3)));
+            this.cities.map(city => promises.push(city.w.upgradeLevel(3)));
             for (let upgrade of ["FocusWires", "Neural Accelerators", "Speech Processor Implants", "Nuoptimal Nootropic Injector Implants", "Smart Factories"]) {
                 promises.push(this.Corp.GetUpgrade(upgrade, 2));
             }
         }
         // Upgrade Each City's Storage to 300
         // Set produced materials to be sold
-        this.industryData.producedMaterials.map(material => this.cities.map(city => city.sellMaterial(material)));
+        this.industryData.producedMaterials.map(material => this.cities.map(city => city.w.sellMaterial(material)));
         if (this.round <= 1) {
-            await this.getHappy();
+            await this.o.getHappy();
         }
         await Promise.all(promises); promises = [];
         if (this.round <= 1) {
-            await this.getHappy();
+            await this.o.getHappy();
         }
         // Adjust Warehouses
         if (this.round == 1 || this.round == 3 || this.c.getMaterial(this.name, this.HQ, "AI Cores").qty==0 || this.c.getMaterial(this.name, this.HQ, "Hardware").qty==0 || this.c.getMaterial(this.name, this.HQ, "Real Estate").qty==0 || this.c.getMaterial(this.name, this.HQ, "Robots").qty==0)
-            await Promise.all(this.cities.map(city => city.warehouseFF()));
+            await Promise.all(this.cities.map(city => city.w.FF()));
         while (this.round <= 1) {
             await this.WaitOneLoop();
         }
         // Get Employees
         let redo = false;
-        if (this.getDivision.research < 2 || this.cities.map(city => city.getOffice.size).reduce((a, b) => a > b ? b : a) < 9) {
+        if (this.getDivision.research < 2 || this.cities.map(city => city.o.size).reduce((a, b) => a > b ? b : a) < 9) {
             redo = true;
             this.cities.map(city => promises.push(city.Hire({ "Operations": 1, "Engineer": 1, "Business": 1, "Management": 1, "Research & Development": 5 })))
         } else {
@@ -143,7 +140,7 @@ class Division extends CorpBaseClass {
         promises.push(this.Corp.GetUpgrade("Smart Factories", Math.ceil(10 * this.ns.getBitNodeMultipliers().CorporationValuation)));
         promises.push(this.Corp.GetUpgrade("Smart Storage", Math.ceil(10* this.ns.getBitNodeMultipliers().CorporationValuation)));
         for (let i = 1 ; i <= Math.ceil(10 * this.ns.getBitNodeMultipliers().CorporationValuation) ; i++) {
-            this.cities.map(city => promises.push(city.upgradeWarehouseLevel(i)));
+            this.cities.map(city => promises.push(city.w.upgradeLevel(i)));
         }
         if (redo) {
             while (this.getDivision.research < 2) {
@@ -154,9 +151,9 @@ class Division extends CorpBaseClass {
         if (this.round >= 2) {
             promises.push(this.Corp.GetUpgrade("Smart Factories", 10));
             promises.push(this.Corp.GetUpgrade("Smart Storage", 10));
-            this.cities.map(city => promises.push(city.Hire({ "Operations": 3, "Engineer": 2, "Business": 2, "Management": 2, "Research & Development": 0 })))
+            this.cities.map(city => promises.push(city.o.Hire({ "Operations": 3, "Engineer": 2, "Business": 2, "Management": 2, "Research & Development": 0 })))
             for (let i = 1 ; i <= 10 ; i++) {
-                this.cities.map(city => promises.push(city.upgradeWarehouseLevel(i)));
+                this.cities.map(city => promises.push(city.w.upgradeLevel(i)));
             }
             }
         if (this.round <= 2) {
@@ -166,31 +163,31 @@ class Division extends CorpBaseClass {
         }
         // Adjust Warehouses
         if (this.round == 2)
-            await Promise.all(this.cities.map(city => city.warehouseFF()));
+            await Promise.all(this.cities.map(city => city.w.FF()));
         while (this.round <= 2) {
             await this.WaitOneLoop();
         }
         // Upgrade Each City's Storage to 3800
         for (let i = 1 ; i <= 19 ; i++) {
-            this.cities.map(city => promises.push(city.upgradeWarehouseLevel(i)));
+            this.cities.map(city => promises.push(city.w.upgradeLevel(i)));
         }
         await Promise.all(promises); promises = [];
-        this.cities.map(city => city.MaintainWarehouse());
+        this.cities.map(city => city.w.MaintainWarehouse());
         return true;
     }
     async Product() {
         this.Research(["Hi-Tech R&D Laboratory"]).then(this.Research(["Market-TA.I", "Market-TA.II"]));
         var cmdlineargs = this.ns.flags(cmdlineflags);
-        this.Pricing();
-        await this.enableSmartSupply();
+        this.w.Pricing();
+        await this.w.enableSmartSupply();
         let promises = [];
         // Get Employees
-        this.cities.map(city => promises.push(city.Hire(city.name == this.HQ ? { "Operations": 8, "Engineer": 9, "Business": 5, "Management": 8 } : { "Operations": 1, "Engineer": 1, "Business": 1, "Management": 1, "Research & Development": 5 })));
+        this.cities.map(city => promises.push(city.o.Hire(city.name == this.HQ ? { "Operations": 8, "Engineer": 9, "Business": 5, "Management": 8 } : { "Operations": 1, "Engineer": 1, "Business": 1, "Management": 1, "Research & Development": 5 })));
         // Buy 1 advert
         promises.push(this.Advert(cmdlineargs['jakobag'] ? 2 : 1));
         await Promise.all(promises);
         promises = [];
-        this.Products();
+        this.w.Products();
         for (let upgrade of ["DreamSense"]) {
             promises.push(this.Corp.GetUpgrade(upgrade, Math.ceil(10 * this.ns.getBitNodeMultipliers().CorporationValuation)));
         }
@@ -204,7 +201,7 @@ class Division extends CorpBaseClass {
             await this.WaitOneLoop();
         }
         await Promise.all(promises);
-        this.MaintainWarehouse();
+        this.w.MaintainWarehouse();
         for (let upgrade of ["DreamSense"]) {
             promises.push(this.Corp.GetUpgrade(upgrade, 10));
         }
@@ -216,17 +213,17 @@ class Division extends CorpBaseClass {
                     let size = this.c.getOffice(this.name, this.HQ).size + 15;
                     let main = Math.floor(size / 3.5);
                     let bus = size - 3 * main;
-                    await this[this.HQ].Hire({ "Operations": main, "Engineer": main, "Business": bus, "Management": main });
+                    await this[this.HQ].o.Hire({ "Operations": main, "Engineer": main, "Business": bus, "Management": main });
                 }
                 else {
                     if (this.c.getUpgradeLevel("Wilson Analytics") >= (10 * this.ns.getBitNodeMultipliers().CorporationValuation) && this.c.getHireAdVertCost(this.name) <= this.funds && this.getDivision.awareness + this.getDivision.popularity < 1e300) {
                         this.c.hireAdVert(this.name);
                     } else {
-                        let didSomething = this.cities.map(city => city.officeSize + 60 < this[this.HQ].officeSize);
+                        let didSomething = this.cities.map(city => city.o.size + 60 < this[this.HQ].o.size);
                         for (let city of this.getDivision.cities) {
                             if (this.c.getOffice(this.name, city).size + 60 < this.c.getOffice(this.name, this.HQ).size) {
                                 if (this.c.getOfficeSizeUpgradeCost(this.name, city, 3) <= this.funds) {
-                                    await this[city].Hire({ "Operations": 1, "Engineer": 1, "Business": 1, "Management": 1, "Research & Development": this.c.getOffice(this.name, city).size - 1 });
+                                    await this[city].o.Hire({ "Operations": 1, "Engineer": 1, "Business": 1, "Management": 1, "Research & Development": this.c.getOffice(this.name, city).size - 1 });
                                     didSomething = true;
                                 }
                             }
@@ -257,7 +254,7 @@ class Division extends CorpBaseClass {
 
         // Get Upgrades
         let promises = [];
-        await Promise.all(this.cities.map(city => city.Hire({"Research & Development": [3,3,9,9,9,9][this.round]})));
+        await Promise.all(this.cities.map(city => city.o.Hire({"Research & Development": [3,3,9,9,9,9][this.round]})));
         for (let i = 0 ; i <= 1 ; i+=.25) {
             this.Corp.GetUpgrade("Smart Storage", Math.ceil(i * [7,7,23,23,23,23][this.round]));
             this.Corp.GetUpgrade("Speech Processor Implants", Math.ceil(i * [0,0,15,15,15,15][this.round]));
@@ -268,7 +265,7 @@ class Division extends CorpBaseClass {
             this.Corp.GetUpgrade("Project Insight", Math.ceil(i * [0,0,10,10,10,10][this.round]));
             this.Corp.GetUpgrade("ABC SalesBots", Math.ceil(i * [0,0,15,15,15,15][this.round]));
             this.Corp.GetUpgrade("Wilson Analytics", Math.ceil(i * [0,0,5,5,5,5][this.round]));
-            this.cities.map(city => city.upgradeWarehouseLevel(Math.ceil(i * [8,8,27,27,27,27][this.round])));
+            this.cities.map(city => city.w.upgradeLevel(Math.ceil(i * [8,8,27,27,27,27][this.round])));
         }
 
         if (this.round >= 2) {
@@ -316,14 +313,14 @@ class Division extends CorpBaseClass {
         Object.keys(this.industryData.requiredMaterials).map(material => this.cities.map(city => this.c.buyMaterial(this.name, city.name, material, 0)));
 
         // Make a Thing
-        await Promise.all(this.cities.map(city => city.Hire({"Engineer": [3,3,9,27,81,343][this.round]})));
+        await Promise.all(this.cities.map(city => city.o.Hire({"Engineer": [3,3,9,27,81,343][this.round]})));
         await this.WaitOneLoop();
 
         // Sell All The Things
         while (this.c.getCorporation().state != "START") {
             await this.ns.asleep(0);
         }
-        await Promise.all(this.cities.map(city => city.Hire({"Business": [3,3,9,27,81,343][this.round]})));
+        await Promise.all(this.cities.map(city => city.o.Hire({"Business": [3,3,9,27,81,343][this.round]})));
         this.cities.map(city => this.c.sellMaterial(this.name, city.name, outputMat[city.name], "MAX", "MP"))
 
         // Wait 5 rounds and then accept the offer
@@ -336,7 +333,7 @@ class Division extends CorpBaseClass {
         this.cities.map(city => city.Pricing());
     }
     async enableSmartSupply() {
-        await Promise.all(this.cities.map(city => city.enableSmartSupply()));
+        await Promise.all(this.cities.map(city => city.o.enableSmartSupply()));
     }
     async WaitOneLoop() {
         await this.Corp.WaitOneLoop();
@@ -396,6 +393,6 @@ class Division extends CorpBaseClass {
         }
     }
     async MaintainWarehouse() {
-        this.cities.map(city => city.MaintainWarehouse);
+        this.cities.map(city => city.o.MaintainWarehouse);
     }
 }
