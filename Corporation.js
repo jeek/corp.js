@@ -116,18 +116,18 @@ export class Corporation extends CorpBaseClass {
         let makesMaterials = Object.keys(this.c.getIndustryData(type)).includes("producedMaterials");
         switch (plan) {
             case "Scam":
-                this.divisionsObj[type]=Scam(ns, this, type, this.settings);
+                this.divisionsObj[type]=new Scam(this.ns, this, type, this.settings);
                 break;
             case "Shell":
-                this.divisionsObj[type]=Shell(ns, this, type, this.settings);
+                this.divisionsObj[type]=new Shell(this.ns, this, type, this.settings);
                 break;
             case "Guide":
             default:
                 if (makesMaterials) {
-                    this.divisionsObj[type]=GuideMaterial(ns, this, type, this.settings);
+                    this.divisionsObj[type]=new GuideMaterial(this.ns, this, type, this.settings);
                 }
                 if (makesProducts) {
-                    this.divisionsObj[type]=GuideProduct(ns, this, type, this.settings);
+                    this.divisionsObj[type]=new GuideProduct(this.ns, this, type, this.settings);
                 }
         }
         this.divisionsObj[type].Start();
