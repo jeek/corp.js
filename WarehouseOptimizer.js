@@ -25,7 +25,7 @@ class WarehouseOptimizer {
             let i = searchmin;
             while (i <= searchmax + divs) {
                 if (i <= size && i >= 0) {
-                    scores = scores.concat([[this.calc(0, 0, i / this.sizes[3], (size - i) / this.sizes[4]), i, size - i]]);
+                    scores = scores.concat([[this.calc(0, 0, i / this.sizes[2], (size - i) / this.sizes[3]), i, size - i]]);
                 }
                 i += divs;
             }
