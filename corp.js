@@ -42,7 +42,7 @@ export async function main(ns) {
             await ns.asleep(10000);
         }
     } else {
-        settings.baseOffers = [210e9, 5e15, 800e15, 500e18];
+        settings.baseOffers = [210e9, 5e12, 800e12, 500e15];
         settings['Agriculture'] = {'name': 'Agriculture', 'plan': 'Guide'};
         settings['Tobacco'] = {'name': 'Tobacco', 'plan': 'Guide'};
         let Corp = new Corporation(ns, settings);
