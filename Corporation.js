@@ -1,5 +1,7 @@
 import { CorpBaseClass } from "CorpBaseClass.js";
-import { Division } from "Division.js";
+import { GuideMaterial } from "GuideMaterial.js";
+import { GuideProduct } from "GuideProduct.js";
+import { Scam } from "Scam.js";
 
 export class Corporation extends CorpBaseClass {
     constructor(ns, settings = {}) {
@@ -74,21 +76,9 @@ export class Corporation extends CorpBaseClass {
             delete this.settings["name"];
         }
         this.divisionsObj = {};
-        this.c.getCorporation().divisions.map(divname => Object({ "name": divname, "type": this.c.getDivision(divname).type })).map(x => this.divisionsObj[x.type] = new Division(this.ns, this, x.type, this.settings));
-        if (!Object.keys(this.settings).includes("scam")) {
-            Object.values(this.divisionsObj).map(x => x.Start());
-        } else {
-            if (Object.keys(this.divisionsObj).includes("Food")) {
-                this.divisionsObj["Food"].Start();
-            } else {
-                if (Object.keys(this.divisionsObj).includes("Real Estate")) {
-                    this.divisionsObj["Real Estate"].Start();
-                } else {
-                    if (Object.keys(this.divisionsObj).includes("Software")) {
-                        this.divisionsObj["Software"].Start();
-                    }
-                }
-            }
+        for (let divname of this.c.getCorporation().divisions) {
+            let type = this.c.getDivision(divname).type;
+            this.StartDivision(type, settings);
         }
         this.started = true;
         this.ns.toast("Corporation started.");
@@ -115,13 +105,30 @@ export class Corporation extends CorpBaseClass {
         this.c.getConstants().unlockNames.map(unlock => this.c.hasUnlockUpgrade(unlock) ? true : this.c.unlockUpgrade(unlock));
     }
     async StartDivision(industry, settings = {}) {
-        if (!Object.keys(this.divisionsObj).includes(industry)) {
-            this.divisionsObj[industry] = new Division(this.ns, this, industry, settings);
-            this.divisionsObj[industry].Start();
-        } else {
-            if (Object.keys(this.settings).includes("scam")) {
-                this.divisionsObj[industry].Start();
-            }
+        if (Object.keys(this.divisionsObj).includes(industry)) {
+            return;
+        }
+        let plan = "Guide";
+        if (Object.keys(this.settings).includes(type) && Object.keys(this.settings[type]).includes("plan")) {
+            plan = this.settings[type].plan;
+        }
+        let makesProducts = Object.keys(this.c.getIndustryData(type)).includes("product");
+        let makesMaterials = Object.keys(this.c.getIndustryData(type)).includes("productedMaterials");
+        switch (plan) {
+            case "Scam":
+                this.divisionsObj[type]=Scam(ns, this, type, this.settings);
+                break;
+            case "Shell":
+                this.divisionsObj[type]=Shell(ns, this, type, this.settings);
+                break;
+            case "Guide":
+            default:
+                if (makesMaterials) {
+                    this.divisionsObj[type]=GuideMaterial(ns, this, type, this.settings);
+                }
+                if (makesProducts) {
+                    this.divisionsObj[type]=GuideProduct(ns, this, type, this.settings);
+                }
         }
     }
     async GetUpgrade(upgrade, level = 1) {

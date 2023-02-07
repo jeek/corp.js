@@ -21,9 +21,9 @@ export async function main(ns) {
     let settings = {'cmdlineflags': cmdlineflags};
     if (cmdlineargs['scam']) {
         settings['scam'] = true;
-        settings['Software'] = {'name': 'Software'};
-        settings['Real Estate'] = {'name': 'Real Estate'};
-        settings['Food'] = {'name': 'Food'}
+        settings['Software'] = {'name': 'Software', 'plan': 'Scam'};
+        settings['Real Estate'] = {'name': 'Real Estate', 'plan': 'Scam'};
+        settings['Food'] = {'name': 'Food', 'plan': 'Guide'}
         let Corp = new Corporation(ns, settings);
         Corp.Start();
         await ns.asleep(1000);
@@ -43,6 +43,8 @@ export async function main(ns) {
         }
     } else {
         settings.baseOffers = [210e9, 5e15, 800e15, 500e18];
+        settings['Agriculture'] = {'name': 'Agriculture', 'plan': 'Guide'};
+        settings['Tobacco'] = {'name': 'Agriculture', 'plan': 'Guide'};
         let Corp = new Corporation(ns, settings);
         Corp.Start();
         await ns.asleep(1000);
