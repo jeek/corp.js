@@ -130,6 +130,7 @@ export class Corporation extends CorpBaseClass {
                     this.divisionsObj[type]=GuideProduct(ns, this, type, this.settings);
                 }
         }
+        this.divisionsObj[type].Start();
     }
     async GetUpgrade(upgrade, level = 1) {
         while (this.c.getUpgradeLevel(upgrade) < level) {
