@@ -113,7 +113,7 @@ export class Corporation extends CorpBaseClass {
             plan = this.settings[type].plan;
         }
         let makesProducts = Object.keys(this.c.getIndustryData(type)).includes("product");
-        let makesMaterials = Object.keys(this.c.getIndustryData(type)).includes("productedMaterials");
+        let makesMaterials = Object.keys(this.c.getIndustryData(type)).includes("producedMaterials");
         switch (plan) {
             case "Scam":
                 this.divisionsObj[type]=Scam(ns, this, type, this.settings);
