@@ -45,6 +45,7 @@ class Update {
                 }
             }
         }
+        importOrder = ["Update.js"].concat(...importOrder);
         this.ns.tprint("    Assembling " + this.scriptName);
         for (let i = 0 ; i < importOrder.length ; i) {
             this.ns.tprint("        " + importOrder[0]);
