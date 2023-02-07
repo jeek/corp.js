@@ -44,7 +44,7 @@ export async function main(ns) {
     } else {
         settings.baseOffers = [210e9, 5e15, 800e15, 500e18];
         settings['Agriculture'] = {'name': 'Agriculture', 'plan': 'Guide'};
-        settings['Tobacco'] = {'name': 'Agriculture', 'plan': 'Guide'};
+        settings['Tobacco'] = {'name': 'Tobacco', 'plan': 'Guide'};
         let Corp = new Corporation(ns, settings);
         Corp.Start();
         await ns.asleep(1000);
