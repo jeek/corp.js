@@ -78,7 +78,7 @@ export class Corporation extends CorpBaseClass {
         this.divisionsObj = {};
         for (let divname of this.c.getCorporation().divisions) {
             let type = this.c.getDivision(divname).type;
-            this.StartDivision(type, settings);
+            this.StartDivision(type, this.settings);
         }
         this.started = true;
         this.ns.toast("Corporation started.");
