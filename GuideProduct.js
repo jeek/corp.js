@@ -1,4 +1,5 @@
 import { ProductIndustry } from "ProductIndustry.js";
+import { City } from "City.js";
 
 class GuideProduct extends ProductIndustry {
     constructor(ns, Corp, industry, settings = {}) {

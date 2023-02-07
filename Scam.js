@@ -1,4 +1,5 @@
 import { MaterialIndustry } from "MaterialIndustry.js";
+import { City } from "City.js";
 
 class Scam extends MaterialIndustry {
     constructor(ns, Corp, industry, settings = {}) {
