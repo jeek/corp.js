@@ -104,8 +104,8 @@ export class Corporation extends CorpBaseClass {
             await this.WaitOneLoop();
         this.c.getConstants().unlockNames.map(unlock => this.c.hasUnlockUpgrade(unlock) ? true : this.c.unlockUpgrade(unlock));
     }
-    async StartDivision(industry, settings = {}) {
-        if (Object.keys(this.divisionsObj).includes(industry)) {
+    async StartDivision(type, settings = {}) {
+        if (Object.keys(this.divisionsObj).includes(type)) {
             return;
         }
         let plan = "Guide";
