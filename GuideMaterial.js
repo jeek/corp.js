@@ -79,7 +79,7 @@ class GuideMaterial extends MaterialIndustry {
             for (let i = 1 ; i <= 10 ; i++) {
                 this.cities.map(city => promises.push(city.w.upgradeLevel(i)));
             }
-            }
+        }
         if (this.round <= 2) {
             await this.getHappy();
             await Promise.all(promises); promises = [];
