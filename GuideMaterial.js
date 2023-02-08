@@ -86,7 +86,7 @@ class GuideMaterial extends MaterialIndustry {
         }
         if (this.round <= 2) {
             await this.getHappy();
-            await Promise.any(city => city.w.upgradeLevel(10).concat([this.GiveUp()])); promises = [];
+            await Promise.any(city => city.w.upgradeLevel(10, true).concat([this.GiveUp()])); promises = [];
             await this.getHappy();
         }
         // Adjust Warehouses
