@@ -96,7 +96,6 @@ class GuideMaterial extends MaterialIndustry {
             this.cities.map(city => promises.push(city.w.upgradeLevel(i)));
         }
         await Promise.all(promises); promises = [];
-        this.MaintainWarehouse();
         return true;
     }
 }

@@ -41,7 +41,6 @@ class GuideProduct extends ProductIndustry {
             await this.WaitOneLoop();
         }
         await Promise.all(promises);
-        this.MaintainWarehouse();
         for (let upgrade of ["DreamSense"]) {
             this.Corp.GetUpgrade(upgrade, 10);
         }
