@@ -79,9 +79,9 @@ class GuideMaterial extends MaterialIndustry {
         if (this.round >= 2) {
             this.cities.map(city => promises.push(city.o.Hire({ "Operations": 3, "Engineer": 2, "Business": 2, "Management": 2, "Research & Development": 0 })))
             for (let i = 1 ; i <= 10 ; i++) {
-                    promises.push(this.Corp.GetUpgrade("Smart Factories", i));
-                    promises.push(this.Corp.GetUpgrade("Smart Storage", i));
-                    this.cities.map(city => promises.push(city.w.upgradeLevel(i)));
+                promises.push(this.Corp.GetUpgrade("Smart Factories", i));
+                promises.push(this.Corp.GetUpgrade("Smart Storage", i));
+                this.cities.map(city => promises.push(city.w.upgradeLevel(i)));
             }
         }
         if (this.round <= 2) {
