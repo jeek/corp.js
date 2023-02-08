@@ -46,8 +46,9 @@ class GuideProduct extends ProductIndustry {
         }
         await this[this.HQ].o.Hire({ "Operations": Math.floor(this.c.getOffice(this.name, this.HQ).size / 3.5), "Engineer": Math.floor(this.c.getOffice(this.name, this.HQ).size / 3.5), "Business": this.c.getOffice(this.name, this.HQ).size - 3 * Math.floor(this.c.getOffice(this.name, this.HQ).size / 3.5), "Management": Math.floor(this.c.getOffice(this.name, this.HQ).size / 3.5) });
         while (true) {
-            if (this.c.getUpgradeLevelCost("Wilson Analytics") <= this.funds) {
-                this.c.levelUpgrade("Wilson Analytics");
+            let WilsonInsight = (this.c.getUpgradeLevel("Wilson Analytics") / this.c.getIndustryData(this.industry).advertisingFactor < this.c.getUpgradeLevel("Project Insight") / this.c.getIndustryData(this.industry).scienceFactor) ? "Wilson Analytics" : "Project Insight";
+            if (this.c.getUpgradeLevelCost(WilsonInsight) <= this.funds) {
+                this.c.levelUpgrade(WilsonInsight);
             } else {
                 if (this.c.getOfficeSizeUpgradeCost(this.name, this.HQ, 15) <= this.funds) {
                     let size = this.c.getOffice(this.name, this.HQ).size + 15;
