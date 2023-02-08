@@ -6,7 +6,7 @@ class GuideMaterial extends MaterialIndustry {
         super(ns, Corp, industry, settings);
     }
     async GiveUp() {
-        await this.ns.sleep(600000);
+        await this.ns.asleep(600000);
         return;
     }
     async Start() {
@@ -86,7 +86,7 @@ class GuideMaterial extends MaterialIndustry {
         }
         if (this.round <= 2) {
             await this.getHappy();
-            await Promise.any([Promise.all(promises), this.GiveUp()]); promises = [];
+            await Promise.any(city => city.w.upgradeLevel(10).concat([this.GiveUp()])); promises = [];
             await this.getHappy();
         }
         // Adjust Warehouses
