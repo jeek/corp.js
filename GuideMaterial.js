@@ -6,10 +6,14 @@ class GuideMaterial extends MaterialIndustry {
         super(ns, Corp, industry, settings);
     }
     async GiveUp() {
-        await this.ns.asleep(600000);
+        let start = Date.now();
+        while (Date.now() - start < 600000 && this.round <= 2)
+            await this.WaitOneLoop();
         if (this.round == 2) {
             this.cities.map(city => promises.push(city.o.Hire({ "Operations": 2, "Engineer": 2, "Business": 2, "Management": 2, "Research & Development": 1 })));
-            await this.ns.asleep(600000);
+            start = Date.now();
+            while (Date.now() - start < 600000 && this.round <= 2)
+                await this.WaitOneLoop();
             if (this.round == 2) {
                 this.cities.map(city => promises.push(city.o.Hire({ "Operations": 3, "Engineer": 2, "Business": 2, "Management": 2, "Research & Development": 3 })));
             }
@@ -93,12 +97,20 @@ class GuideMaterial extends MaterialIndustry {
         }
         if (this.round <= 2) {
             await this.getHappy();
-            await Promise.any(city => city.w.upgradeLevel(10, true).concat([this.GiveUp()])); promises = [];
+            await Promise.any([Promise.all(promises), this.GiveUp()]);
             await this.getHappy();
         }
         // Adjust Warehouses
         if (this.round == 2)
             await Promise.all(this.cities.map(city => city.w.FF()));
+        for (let i = 0 ; i < 6 ; i++) {
+            if (this.round == 2) {
+                await this.WaitOneLoop();
+            }
+        }
+        if (this.round == 2) {
+            this.c.acceptInvestmentOffer();
+        }
         while (this.round <= 2) {
             await this.WaitOneLoop();
         }
