@@ -127,7 +127,7 @@ class Warehouse extends CorpBaseClass {
             this.c.sellProduct(this.Division.name, this.name, product, "MAX", "MP", false);
         }
         while (true) {
-            while (this.c.getCorporation().state != "SALE") {
+            while (this.c.getCorporation().state != "START") {
                 await this.ns.asleep(400);
             }
             for (let product of this.Division.getDivision.products) {
@@ -140,8 +140,6 @@ class Warehouse extends CorpBaseClass {
                                 'x_max': 1,
                                 'phase': 1
                             }
-                            await this.WaitOneLoop();
-                            await this.WaitOneLoop();                    
                         } else {
                             if (this.pricing[product].phase == 3) {
                                 if (this.c.getProduct(this.Division.name, product).cityData[this.HQ][1] < this.c.getProduct(this.Division.name, product).cityData[this.HQ][2]) {
@@ -170,26 +168,21 @@ class Warehouse extends CorpBaseClass {
                                 }
                                 if (this.c.getProduct(this.Division.name, product).cityData[this.HQ][2] <= .001) {
                                     this.pricing[product].x_min /= 2;
-                                    this.pricing[product].x_max *= 1.5;
-                                    this.pricing[product].phase = 2;
+                                    this.pricing[product].x_max *= 2;
+                                    this.pricing[product].phase = 1;
                                 }
                             }
                             if (this.pricing[product].phase == 1) {
-                                if (this.c.getProduct(this.Division.name, product).cityData[this.HQ][0] == 0) {
+                                if (this.c.getProduct(this.Division.name, product).cityData[this.HQ][1] <= this.c.getProduct(this.Division.name, product).cityData[this.HQ][2]) {
                                     this.pricing[product].x_max *= 2;
                                 } else {
-                                    this.pricing[product].x_max /= 2;
-                                }
-                                if (this.c.getProduct(this.Division.name, product).cityData[this.HQ][1] < this.c.getProduct(this.Division.name, product).cityData[this.HQ][2]) {
-                                    this.pricing[product].x_max *= 2;
-                                }
-                                if (this.c.getProduct(this.Division.name, product).cityData[this.HQ][1] > this.c.getProduct(this.Division.name, product).cityData[this.HQ][2]) {
-                                    this.pricing[product].phase = 2;
-                                }
-                                if (this.c.getProduct(this.Division.name, product).cityData[this.HQ][2] <= .001) {
                                     this.pricing[product].phase = 2;
                                 }
                             }
+                            this.pricing[product].x_min = this.pricing[product].x_min < 1 ? 1 : this.pricing[product].x_min;
+                            this.pricing[product].x_max = this.pricing[product].x_max < 1 ? 1 : this.pricing[product].x_max;
+                            this.ns.tprint((Math.floor((this.pricing[product].x_max + this.pricing[product].x_min) / 2)).toString() + "*MP", " ", this.name, " ", this.pricing[product].phase);
+
                             this.c.sellProduct(this.Division.name, this.name, product, "MAX", (Math.floor((this.pricing[product].x_max + this.pricing[product].x_min) / 2)).toString() + "*MP", false);
                         }
                     }
@@ -211,7 +204,7 @@ class Warehouse extends CorpBaseClass {
                     }
                 }
             }
-            while (this.c.getCorporation().state == "SALE") {
+            while (this.c.getCorporation().state == "START") {
                 await this.ns.asleep(400);
             }
         }
