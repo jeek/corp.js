@@ -7,6 +7,13 @@ class GuideMaterial extends MaterialIndustry {
     }
     async GiveUp() {
         await this.ns.asleep(600000);
+        if (this.round == 2) {
+            this.cities.map(city => promises.push(city.o.Hire({ "Operations": 2, "Engineer": 2, "Business": 2, "Management": 2, "Research & Development": 1 })));
+            await this.ns.asleep(600000);
+            if (this.round == 2) {
+                this.cities.map(city => promises.push(city.o.Hire({ "Operations": 3, "Engineer": 2, "Business": 2, "Management": 2, "Research & Development": 3 })));
+            }
+        }
         return;
     }
     async Start() {
@@ -60,9 +67,9 @@ class GuideMaterial extends MaterialIndustry {
         let redo = false;
         if (this.getDivision.research < 2 || this.cities.map(city => city.o.size).reduce((a, b) => a > b ? b : a) < 9) {
             redo = true;
-            this.cities.map(city => promises.push(city.o.Hire({ "Operations": 1, "Engineer": 1, "Business": 1, "Management": 1, "Research & Development": 5 })))
+            this.cities.map(city => promises.push(city.o.Hire({ "Operations": 1, "Engineer": 1, "Business": 1, "Management": 1, "Research & Development": 5 })));
         } else {
-            this.cities.map(city => promises.push(city.o.Hire({ "Operations": 3, "Engineer": 2, "Business": 2, "Management": 2, "Research & Development": 0 })))
+            this.cities.map(city => promises.push(city.o.Hire({ "Operations": 3, "Engineer": 2, "Business": 2, "Management": 2, "Research & Development": 0 })));
         }
         // Get Upgrades
         promises.push(this.Corp.GetUpgrade("Smart Factories", Math.ceil(10 * this.ns.getBitNodeMultipliers().CorporationValuation)));
