@@ -93,7 +93,7 @@ class Warehouse extends CorpBaseClass {
             this.FF();
         }
     }
-    async upgradeLevel(level) {
+    async upgradeLevel(level, growafterwards = false) {
         await this.getAPI();
         while (this.c.getWarehouse(this.Division.name, this.name).level < level) {
             if (this.c.getUpgradeWarehouseCost(this.Division.name, this.name) <= this.funds) {
@@ -101,7 +101,10 @@ class Warehouse extends CorpBaseClass {
             } else {
                 await this.WaitOneLoop();
             }
-        }
+            if (growafterwards) {
+                this.FF();
+            }
+            }
     }
     async enableSmartSupply() {
         while (!this.c.hasUnlockUpgrade("Smart Supply")) {

@@ -5,6 +5,10 @@ class GuideMaterial extends MaterialIndustry {
     constructor(ns, Corp, industry, settings = {}) {
         super(ns, Corp, industry, settings);
     }
+    async GiveUp() {
+        await this.ns.sleep(600000);
+        return;
+    }
     async Start() {
         while (this.c.getCorporation().divisions.map(div => [div, this.c.getDivision(div).type]).filter(x => x[1] == this.industry).length == 0) {
             if (this.c.getIndustryData(this.industry).startingCost <= this.funds) {
@@ -73,16 +77,16 @@ class GuideMaterial extends MaterialIndustry {
         }
         await Promise.all(promises); promises = [];
         if (this.round >= 2) {
-            promises.push(this.Corp.GetUpgrade("Smart Factories", 10));
-            promises.push(this.Corp.GetUpgrade("Smart Storage", 10));
             this.cities.map(city => promises.push(city.o.Hire({ "Operations": 3, "Engineer": 2, "Business": 2, "Management": 2, "Research & Development": 0 })))
             for (let i = 1 ; i <= 10 ; i++) {
-                this.cities.map(city => promises.push(city.w.upgradeLevel(i)));
+                    promises.push(this.Corp.GetUpgrade("Smart Factories", i));
+                    promises.push(this.Corp.GetUpgrade("Smart Storage", i));
+                    this.cities.map(city => promises.push(city.w.upgradeLevel(i)));
             }
         }
         if (this.round <= 2) {
             await this.getHappy();
-            await Promise.all(promises); promises = [];
+            await Promise.any([Promise.all(promises), this.GiveUp()]); promises = [];
             await this.getHappy();
         }
         // Adjust Warehouses
@@ -92,9 +96,10 @@ class GuideMaterial extends MaterialIndustry {
             await this.WaitOneLoop();
         }
         // Upgrade Each City's Storage to 3800
-        for (let i = 1 ; i <= 19 ; i++) {
+        for (let i = 1 ; i < 19 ; i++) {
             this.cities.map(city => promises.push(city.w.upgradeLevel(i)));
         }
+        this.cities.map(city => promises.push(city.w.upgradeLevel(19), true));
         await Promise.all(promises); promises = [];
         return true;
     }
