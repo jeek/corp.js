@@ -126,7 +126,6 @@ class Warehouse extends CorpBaseClass {
         for (let product of this.Division.getDivision.products) {
             this.c.sellProduct(this.Division.name, this.name, product, "MAX", "MP", false);
         }
-        await this.WaitOneLoop();
         while (true) {
             while (this.c.getCorporation().state != "SALE") {
                 await this.ns.asleep(400);
@@ -141,6 +140,8 @@ class Warehouse extends CorpBaseClass {
                                 'x_max': 1,
                                 'phase': 1
                             }
+                            await this.WaitOneLoop();
+                            await this.WaitOneLoop();                    
                         } else {
                             if (this.pricing[product].phase == 3) {
                                 if (this.c.getProduct(this.Division.name, product).cityData[this.HQ][1] < this.c.getProduct(this.Division.name, product).cityData[this.HQ][2]) {
@@ -174,12 +175,10 @@ class Warehouse extends CorpBaseClass {
                                 }
                             }
                             if (this.pricing[product].phase == 1) {
-                                if (this.c.getProduct(this.Division.name, product).cityData[this.HQ][1] == this.c.getProduct(this.Division.name, product).cityData[this.HQ][2]) {
-                                    if (this.c.getProduct(this.Division.name, product).cityData[this.HQ][0] == 0) {
-                                        this.pricing[product].x_max *= 2;
-                                    } else {
-                                        this.pricing[product].x_max /= 2;
-                                    }
+                                if (this.c.getProduct(this.Division.name, product).cityData[this.HQ][0] == 0) {
+                                    this.pricing[product].x_max *= 2;
+                                } else {
+                                    this.pricing[product].x_max /= 2;
                                 }
                                 if (this.c.getProduct(this.Division.name, product).cityData[this.HQ][1] < this.c.getProduct(this.Division.name, product).cityData[this.HQ][2]) {
                                     this.pricing[product].x_max *= 2;
