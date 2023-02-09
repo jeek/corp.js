@@ -187,7 +187,7 @@ class Warehouse extends CorpBaseClass {
                         }
                     }
                 } else {
-                    if (!(Object.keys(this.pricing).includes(product))) {
+                    if (!(Object.keys(this.pricing).includes(product)) || this.pricing[product].phase < 4) {
                         this.pricing[product] = {"phase": 4};
                     }
                     if (this.pricing[product].phase <= 4) {
