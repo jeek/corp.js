@@ -42,6 +42,7 @@ class JeekMaterial extends MaterialIndustry {
         this.cities.map(city => promises.push(city.o.Hire({ "Operations": 1, "Engineer": 1, "Business": 1 })));
         // Buy 1 advert
         promises.push(this.Advert(cmdlineargs['jakobag'] ? 2 : 1));
+        // Upgrade Each City's Storage to 300
         if (cmdlineargs['jakobag']) {
             promises.push(this.Corp.GetUpgrade("Smart Storage", 3));
             this.cities.map(city => promises.push(city.w.upgradeLevel(5)));
@@ -51,7 +52,6 @@ class JeekMaterial extends MaterialIndustry {
                 promises.push(this.Corp.GetUpgrade(upgrade, 2));
             }
         }
-        // Upgrade Each City's Storage to 300
         // Set produced materials to be sold
         this.industryData.producedMaterials.map(material => this.cities.map(city => city.w.sellMaterial(material)));
         if (this.round <= 1) {
