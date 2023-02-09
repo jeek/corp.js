@@ -93,6 +93,7 @@ export class Corporation extends CorpBaseClass {
                     await this.WaitOneLoop();
                 }
                 if (this.round == i) {
+                    this.ns.tprint("Ding! ", this.c.getInvestmentOffer());
                     this.c.acceptInvestmentOffer();
                     await this.WaitOneLoop();
                 }
