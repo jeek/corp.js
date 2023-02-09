@@ -21,7 +21,7 @@ class WarehouseOptimizer {
         let searchmax = size;
         let divs = (searchmax - searchmin) * .1;
         let scores = [[this.calc(0, 0, 0, size / .5), 0, size]];
-        while (divs > .00005 && searchmin < searchmax) {
+        while (divs > this.sizes[2]/size && searchmin < searchmax) {
             let i = searchmin;
             while (i <= searchmax + divs) {
                 if (i <= size && i >= 0) {
@@ -44,7 +44,7 @@ class WarehouseOptimizer {
         let searchmax = size;
         let divs = (searchmax - searchmin) * .1;
         let scores = [[this.calc(0, size / .06, 0, 0), 0, size]];
-        while (divs > .00005 && searchmin < searchmax) {
+        while (divs > this.sizes[2]/size && searchmin < searchmax) {
             let i = searchmin;
             while (i <= searchmax + divs) {
                 if (i <= size && i >= 0) {
@@ -73,9 +73,9 @@ class WarehouseOptimizer {
         let searchmax = size;
         let divs = (searchmax - searchmin) * .1;
         let scores = [[0, 0, 0, 0, 0, 0, 0, 0]];
-        while (divs > .00005 && searchmin < searchmax) {
+        while (divs > this.sizes[2]/size && searchmin < searchmax) {
             let i = searchmin;
-            while (divs > .00005 && i <= searchmax + divs) {
+            while (divs > this.sizes[2]/size && i <= searchmax + divs) {
                 if (i <= size && i >= 0) {
                     let rr = this.optimizerr(i);
                     let ah = this.optimizeah(size - i);
