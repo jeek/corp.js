@@ -89,11 +89,10 @@ export class Corporation extends CorpBaseClass {
     async Continue() {
         if (!Object.keys(this.settings).includes("scam") || this.settings.scam == false) {
             for (let i = 1; i <= 4; i++) {
-                while (this.round == i && this.c.getInvestmentOffer().funds + (this.funds > 0 ? this.funds : 0) < (Object.keys(this.settings).includes("baseOffers") ? this.settings['baseOffers'][i - 1] : [210e9, 5e12, 800e12, 500e15]) * this.ns.getBitNodeMultipliers().CorporationValuation) {
+                while (this.round == i && this.c.getInvestmentOffer().funds < (Object.keys(this.settings).includes("baseOffers") ? this.settings['baseOffers'][i - 1] : [210e9, 5e12, 800e12, 500e15]) * this.ns.getBitNodeMultipliers().CorporationValuation) {
                     await this.WaitOneLoop();
                 }
                 if (this.round == i) {
-                    this.ns.tprint("Ding! ", this.c.getInvestmentOffer());
                     this.c.acceptInvestmentOffer();
                     await this.WaitOneLoop();
                 }
