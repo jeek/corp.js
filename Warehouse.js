@@ -69,7 +69,6 @@ class Warehouse extends CorpBaseClass {
             }
             if (!didSomething) {
                 for (let material of ["AI Cores", "Hardware", "Real Estate", "Robots"]) {
-                    let matIndex = ["AI Cores", "Hardware", "Real Estate", "Robots"].indexOf(material);
                     this.c.buyMaterial(this.Division.name, this.name, material, 0);
                     this.c.sellMaterial(this.Division.name, this.name, material, 0, 0);
                 }
@@ -78,6 +77,10 @@ class Warehouse extends CorpBaseClass {
             while (this.c.getCorporation().state == "EXPORT") {
                 await this.ns.asleep(400);
             }
+        }
+        for (let material of ["AI Cores", "Hardware", "Real Estate", "Robots"]) {
+            this.c.buyMaterial(this.Division.name, this.name, material, 0);
+            this.c.sellMaterial(this.Division.name, this.name, material, 0, 0);
         }
     }
     async upgradeSize(size, growafterwards = false) {
