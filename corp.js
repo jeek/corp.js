@@ -3,6 +3,8 @@ import { Corporation } from "Corporation.js";
 
 const cmdlineflags = [
     ["scam", false],
+    ["guide", false], // Use code based on Mughur's Guide
+    ["jeek", false], // Jeek's Strategy
     ["jakobag", false], // Use Jakob's round 1 agriculture method
     ["update", false]
 ]
@@ -41,7 +43,8 @@ export async function main(ns) {
         while (true) {
             await ns.asleep(10000);
         }
-    } else {
+    }
+    if (cmdlineargs['guide']) {
         settings.baseOffers = [210e9, 5e12, 800e12, 500e15];
         settings['Agriculture'] = {'name': 'Agriculture', 'plan': 'Guide'};
         settings['Tobacco'] = {'name': 'Tobacco', 'plan': 'Guide'};
@@ -57,6 +60,26 @@ export async function main(ns) {
             await ns.asleep(10000);
         }
         Corp.StartDivision("Tobacco");
+        while (true) {
+            await ns.asleep(10000);
+        }
+    }
+    if (cmdlineargs['jeek'] || (cmdlineargs['jeek'] + cmdlineargs['guide'] + cmdlineargs['scam'] == 0)) {
+        settings.baseOffers = [210e9, 5e12, 800e12, 500e15];
+        settings['Agriculture'] = {'name': 'Agriculture', 'plan': 'Jeek'};
+        settings['Food'] = {'name': 'Food', 'plan': 'Jeek'};
+        let Corp = new Corporation(ns, settings);
+        Corp.Start();
+        await ns.asleep(1000);
+        while (Corp.started == false) {
+            ns.toast("Corporation not started yet.");
+            await ns.asleep(60000);
+        }
+        Corp.StartDivision("Agriculture");
+        while (Corp.round < 3) {
+            await ns.asleep(10000);
+        }
+        Corp.StartDivision("Food");
         while (true) {
             await ns.asleep(10000);
         }

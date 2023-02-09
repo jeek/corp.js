@@ -1,6 +1,8 @@
 import { CorpBaseClass } from "CorpBaseClass.js";
 import { GuideMaterial } from "GuideMaterial.js";
 import { GuideProduct } from "GuideProduct.js";
+import { JeekMaterial } from "JeekMaterial.js";
+import { JeekProduct } from "JeekProduct.js";
 import { Scam } from "Scam.js";
 
 export class Corporation extends CorpBaseClass {
@@ -122,12 +124,20 @@ export class Corporation extends CorpBaseClass {
                 this.divisionsObj[type]=new Shell(this.ns, this, type, this.settings);
                 break;
             case "Guide":
-            default:
                 if (makesMaterials) {
                     this.divisionsObj[type]=new GuideMaterial(this.ns, this, type, this.settings);
                 }
                 if (makesProducts) {
                     this.divisionsObj[type]=new GuideProduct(this.ns, this, type, this.settings);
+                }
+                break;
+            case "Jeek":
+            default:
+                if (makesMaterials) {
+                    this.divisionsObj[type]=new JeekMaterial(this.ns, this, type, this.settings);
+                }
+                if (makesProducts) {
+                    this.divisionsObj[type]=new JeekProduct(this.ns, this, type, this.settings);
                 }
         }
         this.divisionsObj[type].Start();
