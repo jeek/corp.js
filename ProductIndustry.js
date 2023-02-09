@@ -24,18 +24,18 @@ class ProductIndustry extends Division {
                 (Object.keys(city.w.pricing).includes(this.c.getProduct(this.name, this.getDivision.products[this.getDivision.products.length - 1]))) ?
                     delete city.w.pricing[this.c.getProduct(this.name, this.getDivision.products[this.getDivision.products.length - 1])] : 0 )
             if (this.getDivision.products.length == 3 + this.c.hasResearched(this.name, "uPgrade: Capacity.I") + this.c.hasResearched(this.name, "uPgrade: Capacity.II")) {
-                let qlts = [];
+                let rats = [];
                 for (let product of this.getDivision.products) {
-                    qlts.push([this.c.getProduct(this.name, product).qlt, product]);
+                    rats.push([this.c.getProduct(this.name, product).rat, product]);
                 }
-                qlts = qlts.sort((a, b) => -a[0] + b[0]);
+                rats = rats.sort((a, b) => -a[0] + b[0]);
                 while (this.funds < this.lastProduct) {
                     await this.WaitOneLoop();
                 }
                 try {
-                    delete this.pricing[qlts[0][1]];
+                    delete this.pricing[rats[0][1]];
                 } catch { }
-                this.c.discontinueProduct(this.name, qlts[0][1]);
+                this.c.discontinueProduct(this.name, rats[0][1]);
             }
             while (this.funds < this.lastProduct) {
                 await this.WaitOneLoop();
