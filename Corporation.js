@@ -94,6 +94,7 @@ export class Corporation extends CorpBaseClass {
                 }
                 if (this.round == i) {
                     this.c.acceptInvestmentOffer();
+                    await this.WaitOneLoop();
                 }
             }
             if (!this.c.getCorporation().public)
