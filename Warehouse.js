@@ -184,7 +184,6 @@ class Warehouse extends CorpBaseClass {
                             }
                             this.pricing[product].x_min = this.pricing[product].x_min < 1 ? 1 : this.pricing[product].x_min;
                             this.pricing[product].x_max = this.pricing[product].x_max < 1 ? 1 : this.pricing[product].x_max;
-                            this.ns.tprint((Math.floor((this.pricing[product].x_max + this.pricing[product].x_min) / 2)).toString() + "*MP", " ", this.name, " ", this.pricing[product].phase);
 
                             this.c.sellProduct(this.Division.name, this.name, product, "MAX", (Math.floor((this.pricing[product].x_max + this.pricing[product].x_min) / 2)).toString() + "*MP", false);
                         }
