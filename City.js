@@ -35,9 +35,9 @@ class City extends CorpBaseClass {
     async Start() {
         while (!this.Division.getDivision.cities.includes(this.name)) {
             await this.ns.asleep(100);
-            try {
+            if (this.funds > this.c.getConstants().officeInitialCost) {
                 this.c.expandCity(this.Division.name, this.name);
-            } catch { }
+            }
         }
         this.w = new Warehouse(this.ns, this);
         this.w.Start();
