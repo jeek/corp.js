@@ -23,6 +23,8 @@ class JeekProduct extends ProductIndustry {
         await this.enableSmartSupply();
         let promises = [];
         // Get Employees
+        this.cities.map(city => promises.push(city.o.Hire({ "Operations": 1, "Engineer": 1, "Business": 1})));
+        await this.WaitOneLoop();
         this.cities.map(city => promises.push(city.o.Hire(city.name == this.HQ ? { "Operations": 8, "Engineer": 9, "Business": 5, "Management": 8 } : { "Operations": 1, "Engineer": 1, "Business": 1, "Management": 1, "Research & Development": 5 })));
         // Buy 1 advert
         promises.push(this.Advert(cmdlineargs['jakobag'] ? 2 : 1));
