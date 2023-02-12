@@ -65,7 +65,7 @@ export async function main(ns) {
         }
     }
     if (cmdlineargs['jeek'] || (cmdlineargs['jeek'] + cmdlineargs['guide'] + cmdlineargs['scam'] == 0)) {
-        settings.baseOffers = [210e9, 5e12, 800e12, 500e15];
+        settings.baseOffers = [270e9, 900e9, 5e12, 1e15];
         settings['Agriculture'] = {'name': 'Agriculture', 'plan': 'Jeek'};
         settings['Food'] = {'name': 'Food', 'plan': 'Jeek'};
         let Corp = new Corporation(ns, settings);

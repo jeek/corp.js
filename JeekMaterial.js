@@ -54,9 +54,13 @@ class JeekMaterial extends MaterialIndustry {
         promises.push(this.Advert(cmdlineargs['jakobag'] ? 2 : 1));
         if (cmdlineargs['jakobag']) {
             promises.push(this.Corp.GetUpgrade("Smart Storage", 3));
-            this.cities.map(city => promises.push(city.w.upgradeLevel(5)));
+            for (let i = 1 ; i <= 5 ; i += 1) {
+                this.cities.map(city => promises.push(city.w.upgradeLevel(i)));
+            }
         } else {
-            this.cities.map(city => promises.push(city.w.upgradeLevel(3)));
+            for (let i = 1 ; i <= 3 ; i += 1) {
+                this.cities.map(city => promises.push(city.w.upgradeLevel(i)));
+            }
             for (let upgrade of ["FocusWires", "Neural Accelerators", "Speech Processor Implants", "Nuoptimal Nootropic Injector Implants", "Smart Factories"]) {
                 promises.push(this.Corp.GetUpgrade(upgrade, 2));
             }
