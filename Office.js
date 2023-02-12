@@ -112,6 +112,20 @@ class Office extends CorpBaseClass {
             await this.WaitOneLoop();
         }
     }
+    async isHappy() {
+        await this.getAPI();
+        let happy = true;
+        if (this.getOffice.avgEne < this.settings.minEnergy) {
+            happy = false;
+        }
+        if (this.getOffice.avgHap < this.settings.minHappy) {
+            happy = false;
+        }
+        if (this.getOffice.avgMor < this.settings.minMorale) {
+            happy = false;
+        }
+        return happy;
+    }
     async coffeeparty() {
         await this.getAPI();
         while (true) {
