@@ -85,7 +85,7 @@ export async function main(ns) {
                 Corp.c.unlockUpgrade("Export");
             }
         }
-        Corp.StartDivision("Utilities");
+        Corp.StartDivision("Water Utilities");
         while (Corp.round < 3) {
             await ns.asleep(10000);
         }

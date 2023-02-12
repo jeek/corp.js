@@ -280,14 +280,14 @@ class Warehouse extends CorpBaseClass {
                     providers[material] = this.c.getConstants().industryNames.map(x => [x, this.c.getIndustryData(x)]).filter(x => Object.keys(x[1]).includes("producedMaterials")).map(x => [x[0], x[1].producedMaterials]).filter(x => x[1].includes(material)).map(x => x[0]).flat().map(x => this.c.getCorporation().divisions.filter(y => this.c.getDivision(y).type == x)).flat();
                 if (providers[material].length > 0) {
                     let needed = 0;
-                    if (this.c.getIndustryData(type).producedMaterials) {
+                    if (this.c.getIndustryData(this.Division.industry).producedMaterials) {
                         for (let outputmat of this.industryData.producedMaterials) {
-                            needed += (this.c.getMaterial(divname, city, outputmat).prod) * this.c.getIndustryData(type).requiredMaterials[material];
+                            needed += (this.c.getMaterial(this.Division.name, this.name, outputmat).prod) * this.c.getIndustryData(this.Division.industry).requiredMaterials[material];
                         }
                     }
                     if (this.Division.getDivision.products) {
-                        for (let product of this.getDivision.products.filter(x => this.c.getProduct(this.Division.name, x).developmentProgress >= 100)) {
-                            needed += (this.c.getProduct(this.Division.name, product).cityData[city][1]) * this.industryData.requiredMaterials[material];
+                        for (let product of this.c.getDivision(this.Division.name).products.filter(x => this.c.getProduct(this.Division.name, x).developmentProgress >= 100)) {
+                         needed += (this.c.getProduct(this.Division.name, product).cityData[this.name][1]) * this.industryData.requiredMaterials[material];
                         }
                     }
                     try {
