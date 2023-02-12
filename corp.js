@@ -76,10 +76,26 @@ export async function main(ns) {
             await ns.asleep(60000);
         }
         Corp.StartDivision("Agriculture");
+        while (Corp.round < 2) {
+            await ns.asleep(10000);
+        }
+        while (!Corp.c.hasUnlockUpgrade("Export")) {
+            await this.ns.asleep(100);
+            if (this.c.getUnlockUpgradeCost("Export") <= this.funds && !this.c.hasUnlockUpgrade("Export")) {
+                this.c.unlockUpgrade("Export");
+            }
+        }
+        Corp.StartDivision("Utilities");
         while (Corp.round < 3) {
             await ns.asleep(10000);
         }
+        Corp.StartDivision("Hardware");
+        Corp.StartDivision("Mining");
+        while (Corp.round < 4) {
+            await ns.asleep(10000);
+        }
         Corp.StartDivision("Food");
+        Corp.StartDivision("Robotics");
         while (true) {
             await ns.asleep(10000);
         }

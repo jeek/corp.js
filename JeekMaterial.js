@@ -113,6 +113,8 @@ class JeekMaterial extends MaterialIndustry {
         }
         this.cities.map(city => promises.push(city.w.upgradeLevel(19), true));
         await Promise.all(promises); promises = [];
+        this.cities.map(city => city.w.FF(3800));
+        this.cities.map(city => promises.push(city.o.Hire({ "Operations": 3, "Engineer": 2, "Business": 2, "Management": 2, "Research & Development": 3 })))
         return true;
     }
 }
