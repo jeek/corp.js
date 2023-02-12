@@ -89,7 +89,7 @@ export async function main(ns) {
         while (Corp.round < 3) {
             await ns.asleep(10000);
         }
-        Corp.StartDivision("Hardware");
+        Corp.StartDivision("Computer Hardware");
         Corp.StartDivision("Mining");
         while (Corp.round < 4) {
             await ns.asleep(10000);
