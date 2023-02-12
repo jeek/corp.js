@@ -59,7 +59,7 @@ class Warehouse extends CorpBaseClass {
             let didSomething = false;
             for (let material of ["AI Cores", "Hardware", "Real Estate", "Robots"]) {
                 let matIndex = ["AI Cores", "Hardware", "Real Estate", "Robots"].indexOf(material);
-                if (this.c.hasResearched(this.Division.name, "Bulk Purchasing")) {
+                if (this.c.hasResearched(this.Division.name, "Bulk Purchasing") || true) {
                     if (this.c.getMaterial(this.Division.name, this.name, material).qty <= mymats[matIndex]) {
                         let qty = (mymats[matIndex] - this.c.getMaterial(this.Division.name, this.name, material).qty);
                         while (qty > 0 && qty * this.c.getMaterial(this.Division.name, this.name, material).cost > this.funds) {

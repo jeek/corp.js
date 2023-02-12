@@ -115,7 +115,7 @@ class Office extends CorpBaseClass {
     async coffeeparty() {
         await this.getAPI();
         while (true) {
-            while (this.c.getCorporation().state != "START") {
+            while (this.c.getCorporation().state != "SALE") {
                 await this.ns.asleep(400);
             }
             if (this.getOffice.employees > 0) {
@@ -126,7 +126,7 @@ class Office extends CorpBaseClass {
                     this.c.throwParty(this.Division.name, this.name, this.c.getConstants().coffeeCostPerEmployee);
                 }
             }
-            while (this.c.getCorporation().state == "START") {
+            while (this.c.getCorporation().state == "SALE") {
                 await this.ns.asleep(400);
             }
         }
