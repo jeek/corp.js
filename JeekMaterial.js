@@ -29,10 +29,16 @@ class JeekMaterial extends MaterialIndustry {
             }
         }
         this.Corp.pause += 1;
+        let city = "Sector-12";
+        this.citiesObj[city] = new City(this.ns, this.Corp, this, city, this.settings);
+        await this.citiesObj[city].Start();
+        this.industryData.producedMaterials.map(material => this.citiesObj[city].w.sellMaterial(material));
         for (let city of this.Cities) {
-            this.citiesObj[city] = new City(this.ns, this.Corp, this, city, this.settings);
-            this.citiesObj[city].Start();
-            this.industryData.producedMaterials.map(material => this.citiesObj[city].w.sellMaterial(material));
+            if (city != "Sector-12") {
+                this.citiesObj[city] = new City(this.ns, this.Corp, this, city, this.settings);
+                await this.citiesObj[city].Start();
+                this.industryData.producedMaterials.map(material => this.citiesObj[city].w.sellMaterial(material));
+            }
         }
         var cmdlineargs = this.ns.flags(this.settings.cmdlineflags);
         while (!(this.c.getCorporation().divisions.map(x => this.c.getDivision(x)).map(x => x.type).includes(this.industry))) {
@@ -66,7 +72,12 @@ class JeekMaterial extends MaterialIndustry {
         // Adjust Warehouses
         if (this.round == 1 || this.round == 3 || this.c.getMaterial(this.name, this.HQ, "AI Cores").qty==0 || this.c.getMaterial(this.name, this.HQ, "Hardware").qty==0 || this.c.getMaterial(this.name, this.HQ, "Real Estate").qty==0 || this.c.getMaterial(this.name, this.HQ, "Robots").qty==0)
             await Promise.all(this.cities.map(city => city.w.FF()));
-        while (this.round <= 1) {
+        if (this.round <= 1) {
+            while (this.round <= 1) {
+                await this.WaitOneLoop();
+            }
+            await this.WaitOneLoop();
+            await this.WaitOneLoop();
             await this.WaitOneLoop();
         }
         // Get Employees
