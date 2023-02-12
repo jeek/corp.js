@@ -65,6 +65,9 @@ export class Corporation extends CorpBaseClass {
     get ['Water Utilities']() {
         return this.divisionsObj['Water Utilities'];
     }
+    get isHappy() {
+        return this.divisionsObj.map(division => division.isHappy).reduce((a, b) => a && b);
+    }
     async Start() {
         while ([undefined, false].includes(this.c.hasCorporation())) {
             try {

@@ -44,7 +44,7 @@ class Warehouse extends CorpBaseClass {
         if (this.Corp.pause) {
             return;
         }
-        if (!await this.City.o.isHappy()) {
+        if (!this.Corp.isHappy) {
             return;
         }
         await this.getAPI();

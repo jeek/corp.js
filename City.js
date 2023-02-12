@@ -32,6 +32,9 @@ class City extends CorpBaseClass {
     get industryData() {
         return this.Division.industryData;
     }
+    get isHappy() {
+        return this.o.isHappy;
+    }
     async Start() {
         while (!this.Division.getDivision.cities.includes(this.name)) {
             await this.ns.asleep(100);

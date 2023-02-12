@@ -69,6 +69,9 @@ class Division extends CorpBaseClass {
         }
         await Promise.all(this.cities.map(city => city.o.getHappy()));
     }
+    get isHappy() {
+        return this.cities.map(city => city.isHappy).reduce((a, b) => a && b);
+    }
     async Pricing() {
         this.cities.map(city => city.w.Pricing());
     }
