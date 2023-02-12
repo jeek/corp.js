@@ -37,6 +37,7 @@ class Warehouse extends CorpBaseClass {
                 await this.WaitOneLoop();
             }
         }
+        this.MaintainWarehouse();
     }
     async FF(mysize = -1, maintaining = false) {
         if (this.Corp.pause) {

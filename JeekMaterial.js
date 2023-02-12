@@ -29,14 +29,15 @@ class JeekMaterial extends MaterialIndustry {
             }
         }
         this.Corp.pause += 1;
-        this.Cities.map(city => this.citiesObj[city] = new City(this.ns, this.Corp, this, city, this.settings));
-        await Promise.all(this.cities.map(city => city.Start()));
+        for (let city of this.Cities) {
+            this.citiesObj[city] = new City(this.ns, this.Corp, this, city, this.settings);
+            this.citiesObj[city].Start();
+            this.industryData.producedMaterials.map(material => this.citiesObj[city].w.sellMaterial(material));
+        }
         var cmdlineargs = this.ns.flags(this.settings.cmdlineflags);
         while (!(this.c.getCorporation().divisions.map(x => this.c.getDivision(x)).map(x => x.type).includes(this.industry))) {
             await this.WaitOneLoop();
         }
-        // Set produced materials to be sold
-        this.industryData.producedMaterials.map(material => this.cities.map(city => city.w.sellMaterial(material)));
         this.Research(["Hi-Tech R&D Laboratory"]).then(this.Research(["Market-TA.I", "Market-TA.II"]));
         this.Pricing();
         await this.enableSmartSupply();
