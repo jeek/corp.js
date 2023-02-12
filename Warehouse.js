@@ -60,7 +60,7 @@ class Warehouse extends CorpBaseClass {
                 await this.ns.asleep(400);
             }
             let didSomething = false;
-            for (let material of ["AI Cores", "Hardware", "Real Estate", "Robots"]) {
+            for (let material of ["Hardware", "AI Cores", "Robots", "Real Estate"]) {
                 let matIndex = ["AI Cores", "Hardware", "Real Estate", "Robots"].indexOf(material);
                 if (this.c.hasResearched(this.Division.name, "Bulk Purchasing") || true) {
                     if (this.c.getMaterial(this.Division.name, this.name, material).qty <= mymats[matIndex]) {
