@@ -38,6 +38,7 @@ class Warehouse extends CorpBaseClass {
             }
         }
         this.MaintainWarehouse();
+        this.Exporty();
     }
     async FF(mysize = -1, maintaining = false) {
         if (this.Corp.pause) {
