@@ -153,7 +153,7 @@ class Warehouse extends CorpBaseClass {
             }
             for (let product of this.Division.getDivision.products) {
                 if (!this.c.hasResearched(this.Division.name, "Market-TA.II")) {
-                    if (this.c.getProduct(this.Division.name, product).developmentProgress >= 100) {
+                    if (this.c.getProduct(this.Division.name, this.name, product).developmentProgress >= 100) {
                         if (!(Object.keys(this.pricing).includes(product))) {
                             this.c.sellProduct(this.Division.name, this.name, product, "MAX", "MP", false);
                             this.pricing[product] = {
@@ -163,38 +163,38 @@ class Warehouse extends CorpBaseClass {
                             }
                         } else {
                             if (this.pricing[product].phase == 3) {
-                                if (this.c.getProduct(this.Division.name, product).cityData[this.HQ][1] < this.c.getProduct(this.Division.name, product).cityData[this.HQ][2]) {
+                                if (this.c.getProduct(this.Division.name, this.name, product).prod < this.c.getProduct(this.Division.name, this.name, product).sell) {
                                     this.pricing[product].x_min = this.pricing[product].x_min + 1 >= 1 ? this.pricing[product].x_min + 1 : 1;
                                     this.pricing[product].x_max = this.pricing[product].x_min;
                                 }
-                                if (this.c.getProduct(this.Division.name, product).cityData[this.HQ][1] > this.c.getProduct(this.Division.name, product).cityData[this.HQ][2]) {
+                                if (this.c.getProduct(this.Division.name, this.name, product).prod > this.c.getProduct(this.Division.name, this.name, product).sell) {
                                     this.pricing[product].x_min = this.pricing[product].x_min - 1 >= 1 ? this.pricing[product].x_min - 1 : 1;
                                     this.pricing[product].x_max = this.pricing[product].x_min;
                                 }
-                                if (this.c.getProduct(this.Division.name, product).cityData[this.HQ][2] <= .001) {
+                                if (this.c.getProduct(this.Division.name, this.name, product).sell <= .001) {
                                     this.pricing[product].x_min /= 2;
                                     this.pricing[product].x_max *= 1.5;
                                     this.pricing[product].phase = 2;
                                 }
                             }
                             if (this.pricing[product].phase == 2) {
-                                if (this.c.getProduct(this.Division.name, product).cityData[this.HQ][1] <= this.c.getProduct(this.Division.name, product).cityData[this.HQ][2]) {
+                                if (this.c.getProduct(this.Division.name, this.name, product).prod <= this.c.getProduct(this.Division.name, this.name, product).sell) {
                                     this.pricing[product].x_min = (this.pricing[product].x_min + this.pricing[product].x_max) / 2;
                                 }
-                                if (this.c.getProduct(this.Division.name, product).cityData[this.HQ][1] > this.c.getProduct(this.Division.name, product).cityData[this.HQ][2]) {
+                                if (this.c.getProduct(this.Division.name, this.name, product).prod > this.c.getProduct(this.Division.name, this.name, product).sell) {
                                     this.pricing[product].x_max = (this.pricing[product].x_min + this.pricing[product].x_max) / 2;
                                 }
                                 if (this.pricing[product].x_max - this.pricing[product].x_min < .5) {
                                     this.pricing[product].phase = 3;
                                 }
-                                if (this.c.getProduct(this.Division.name, product).cityData[this.HQ][2] <= .001) {
+                                if (this.c.getProduct(this.Division.name, this.name, product).sell <= .001) {
                                     this.pricing[product].x_min /= 2;
                                     this.pricing[product].x_max *= 2;
                                     this.pricing[product].phase = 1;
                                 }
                             }
                             if (this.pricing[product].phase == 1) {
-                                if (this.c.getProduct(this.Division.name, product).cityData[this.HQ][1] <= this.c.getProduct(this.Division.name, product).cityData[this.HQ][2]) {
+                                if (this.c.getProduct(this.Division.name, this.name, product).prod <= this.c.getProduct(this.Division.name, this.name, product).sell) {
                                     this.pricing[product].x_max *= 2;
                                 } else {
                                     this.pricing[product].phase = 2;
@@ -257,12 +257,12 @@ class Warehouse extends CorpBaseClass {
             }
             let products = (Object.keys(this.Division.getDivision).includes("products")) ? this.Division.getDivision.products : [];
             for (let product of products) {
-                let myprod = this.c.getProduct(this.Division.name, product).cityData[this.name][1];
+                let myprod = this.c.getProduct(this.Division.name, this.name, product).prod;
                 if (myprod < 10) {
                     myprod = 10;
                 }
                 sizes[1] += productSize * myprod;
-                sizes[2] += productSize * this.c.getProduct(this.Division.name, product).cityData[this.name][0];
+                sizes[2] += productSize * this.c.getProduct(this.Division.name, this.name, product).qty;
                 for (let material of Object.keys(this.industryData.requiredMaterials)) {
                     sizes[0] += myprod * this.c.getMaterialData(material).size * this.industryData.requiredMaterials[material];
                     if (!"AI Cores", ["Hardware", "Real Estate", "Robots"].includes(material))
@@ -303,9 +303,9 @@ class Warehouse extends CorpBaseClass {
                             needed += (this.c.getMaterial(this.Division.name, this.name, outputmat).prod) * this.c.getIndustryData(this.Division.industry).requiredMaterials[material];
                         }
                     }
-                    if (this.Division.getDivision.products) {
-                        for (let product of this.c.getDivision(this.Division.name).products.filter(x => this.c.getProduct(this.Division.name, x).developmentProgress >= 100)) {
-                         needed += (this.c.getProduct(this.Division.name, product).cityData[this.name][1]) * this.industryData.requiredMaterials[material];
+                    if (this.Division.getDivision.products.length > 0) {
+                        for (let product of this.c.getDivision(this.Division.name).products.filter(x => this.c.getProduct(this.Division.name, this.name, x).developmentProgress >= 100)) {
+                         needed += (this.c.getProduct(this.Division.name, this.name, product).prod) * this.industryData.requiredMaterials[material];
                         }
                     }
                     try {

@@ -17,16 +17,16 @@ class ProductIndustry extends Division {
             this.lastProductPrice = 2e9;
         }
         while (true) {
-            while (this.c.getProduct(this.name, this.getDivision.products[this.getDivision.products.length - 1]).developmentProgress < 100) {
+            while (this.c.getProduct(this.name, "Sector-12", this.getDivision.products[this.getDivision.products.length - 1]).developmentProgress < 100) {
                 await this.WaitOneLoop();
             }
             this.cities.map(city =>
-                (Object.keys(city.w.pricing).includes(this.c.getProduct(this.name, this.getDivision.products[this.getDivision.products.length - 1]))) ?
-                    delete city.w.pricing[this.c.getProduct(this.name, this.getDivision.products[this.getDivision.products.length - 1])] : 0 )
+                (Object.keys(city.w.pricing).includes(this.c.getProduct(this.name, city.name, this.getDivision.products[this.getDivision.products.length - 1]))) ?
+                    delete city.w.pricing[this.c.getProduct(this.name, city.name, this.getDivision.products[this.getDivision.products.length - 1])] : 0 )
             if (this.getDivision.products.length == 3 + this.c.hasResearched(this.name, "uPgrade: Capacity.I") + this.c.hasResearched(this.name, "uPgrade: Capacity.II")) {
                 let rats = [];
                 for (let product of this.getDivision.products) {
-                    rats.push([this.c.getProduct(this.name, product).rat, product]);
+                    rats.push([this.c.getProduct(this.name, "Sector-12", product).rat, product]);
                 }
                 rats = rats.sort((a, b) => -a[0] + b[0]);
                 while (this.funds < this.lastProduct) {
