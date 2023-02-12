@@ -80,9 +80,9 @@ export async function main(ns) {
             await ns.asleep(10000);
         }
         while (!Corp.c.hasUnlockUpgrade("Export")) {
-            await this.ns.asleep(100);
-            if (this.c.getUnlockUpgradeCost("Export") <= this.funds && !this.c.hasUnlockUpgrade("Export")) {
-                this.c.unlockUpgrade("Export");
+            await ns.asleep(100);
+            if (Corp.c.getUnlockUpgradeCost("Export") <= Corp.funds && !Corp.c.hasUnlockUpgrade("Export")) {
+                Corp.c.unlockUpgrade("Export");
             }
         }
         Corp.StartDivision("Utilities");
