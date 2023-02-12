@@ -39,6 +39,9 @@ class Warehouse extends CorpBaseClass {
         }
     }
     async FF(mysize = -1, maintaining = false) {
+        if (this.Corp.pause) {
+            return;
+        }
         await this.getAPI();
         if (mysize == -1)
             mysize = this.size;
@@ -54,16 +57,29 @@ class Warehouse extends CorpBaseClass {
             let didSomething = false;
             for (let material of ["AI Cores", "Hardware", "Real Estate", "Robots"]) {
                 let matIndex = ["AI Cores", "Hardware", "Real Estate", "Robots"].indexOf(material);
-                if ((!Object.keys(this.industryData).includes("producedMaterials") || !Object.keys(this.industryData.producedMaterials).includes(material)) && !maintaining) {
-                    if (this.c.getMaterial(this.Division.name, this.name, material).qty >= mymats[matIndex]) {
-                        this.c.buyMaterial(this.Division.name, this.name, material, 0);
-                        this.c.sellMaterial(this.Division.name, this.name, material, (this.c.getMaterial(this.Division.name, this.name, material).qty - mymats[matIndex]) / 10, 0);
-                        didSomething = true;
-                    }
+                if (this.c.hasResearched(this.Division.name, "Bulk Purchasing")) {
                     if (this.c.getMaterial(this.Division.name, this.name, material).qty <= mymats[matIndex]) {
-                        this.c.buyMaterial(this.Division.name, this.name, material, (mymats[matIndex] - this.c.getMaterial(this.Division.name, this.name, material).qty) / 10);
-                        this.c.sellMaterial(this.Division.name, this.name, material, 0, 0);
-                        didSomething = true;
+                        let qty = (mymats[matIndex] - this.c.getMaterial(this.Division.name, this.name, material).qty);
+                        while (qty > 0 && qty * this.c.getMaterial(this.Division.name, this.name, material).cost > this.funds) {
+                            qty = Math.floor(qty * .9);
+                        }
+                        if (qty > 0) {
+                            this.c.bulkPurchase(this.Division.name, this.name, material, qty);
+                            didSomething = true;
+                        }
+                    }
+                } else {
+                    if ((!Object.keys(this.industryData).includes("producedMaterials") || !Object.keys(this.industryData.producedMaterials).includes(material)) && !maintaining) {
+                        if (this.c.getMaterial(this.Division.name, this.name, material).qty >= mymats[matIndex]) {
+                            this.c.buyMaterial(this.Division.name, this.name, material, 0);
+                            this.c.sellMaterial(this.Division.name, this.name, material, (this.c.getMaterial(this.Division.name, this.name, material).qty - mymats[matIndex]) / 10, 0);
+                            didSomething = true;
+                        }
+                        if (this.c.getMaterial(this.Division.name, this.name, material).qty <= mymats[matIndex]) {
+                            this.c.buyMaterial(this.Division.name, this.name, material, (mymats[matIndex] - this.c.getMaterial(this.Division.name, this.name, material).qty) / 10);
+                            this.c.sellMaterial(this.Division.name, this.name, material, 0, 0);
+                            didSomething = true;
+                        }
                     }
                 }
             }

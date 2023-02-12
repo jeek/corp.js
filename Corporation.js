@@ -18,6 +18,7 @@ export class Corporation extends CorpBaseClass {
                 delete settings["name"];
             }   
         }
+        this.pause = 0;
     }
     get name() {
         return this.c.getCorporation().name;

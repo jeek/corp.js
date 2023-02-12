@@ -13,6 +13,7 @@ class JeekProduct extends ProductIndustry {
                 await this.WaitOneLoop();
             }
         }
+        this.Corp.pause += 1;
         this.Cities.map(city => this.citiesObj[city] = new City(this.ns, this.Corp, this, city, this.settings));
         await Promise.all(this.cities.map(city => city.Start()));
         this.Research(["Hi-Tech R&D Laboratory"])
@@ -40,6 +41,7 @@ class JeekProduct extends ProductIndustry {
         while (this.getDivision.products.length == 0) {
             await this.WaitOneLoop();
         }
+        this.Corp.pause -= 1;
         await Promise.all(promises);
         for (let upgrade of ["DreamSense"]) {
             this.Corp.GetUpgrade(upgrade, 10);

@@ -28,6 +28,7 @@ class JeekMaterial extends MaterialIndustry {
                 await this.WaitOneLoop();
             }
         }
+        this.Corp.pause += 1;
         this.Cities.map(city => this.citiesObj[city] = new City(this.ns, this.Corp, this, city, this.settings));
         await Promise.all(this.cities.map(city => city.Start()));
         var cmdlineargs = this.ns.flags(this.settings.cmdlineflags);
@@ -53,6 +54,7 @@ class JeekMaterial extends MaterialIndustry {
                 promises.push(this.Corp.GetUpgrade(upgrade, 2));
             }
         }
+        this.Corp.pause -= 1;
         if (this.round <= 1) {
             await this.getHappy();
         }
