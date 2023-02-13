@@ -84,11 +84,14 @@ class Scam extends MaterialIndustry {
         await this.WaitOneLoop();
 
         // Sell All The Things
-        while (this.c.getCorporation().state != "START") {
+        while (this.c.getCorporation().state != "EXPORT") {
             await this.ns.asleep(0);
         }
         await Promise.all(this.cities.map(city => city.o.Hire({"Business": [3,3,9,27,81,343][this.round]})));
         this.cities.map(city => this.c.sellMaterial(this.name, city.name, outputMat[city.name], "MAX", "MP"))
+        while (this.c.getCorporation().state == "EXPORT") {
+            await this.ns.asleep(0);
+        }
 
         // Wait 5 rounds and then accept the offer
         for (let i = 0 ; i < 5 ; i++) {
